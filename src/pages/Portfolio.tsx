@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
 import { DollarSign, TrendingUp, TrendingDown } from "lucide-react";
@@ -14,6 +14,8 @@ const samplePortfolioData = [
   { name: 'Circular Economy', value: 15000, growth: 9.8 },
 ];
 
+const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#D6BCFA', '#805AD5'];
+
 const Portfolio = () => {
   const handleInvest = (sector: string) => {
     toast({
@@ -21,6 +23,8 @@ const Portfolio = () => {
       description: `You've simulated investing in ${sector}`,
     });
   };
+
+  const totalValue = samplePortfolioData.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
     <div className="min-h-screen flex w-full bg-[#1A1F2C] text-white">
@@ -47,32 +51,59 @@ const Portfolio = () => {
               </div>
             </Card>
 
-            <div className="grid gap-4">
-              {samplePortfolioData.map((item) => (
-                <Card key={item.name} className="p-4 bg-[#2A2F3C]/60 backdrop-blur-lg border-purple-800">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">{item.name}</h4>
-                      <p className="text-sm text-gray-400">${item.value.toLocaleString()}</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className={`flex items-center ${item.growth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {item.growth >= 0 ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
-                        {Math.abs(item.growth)}%
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleInvest(item.name)}
-                        className="bg-purple-700 hover:bg-purple-600"
-                      >
-                        <DollarSign className="w-4 h-4 mr-1" />
-                        Invest
-                      </Button>
-                    </div>
+            <Card className="p-6 bg-[#2A2F3C]/60 backdrop-blur-lg border-purple-800">
+              <h3 className="text-xl font-semibold mb-4">Portfolio Composition</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={samplePortfolioData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {samplePortfolioData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Value']}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </div>
+
+          <div className="grid gap-4">
+            {samplePortfolioData.map((item) => (
+              <Card key={item.name} className="p-4 bg-[#2A2F3C]/60 backdrop-blur-lg border-purple-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold">{item.name}</h4>
+                    <p className="text-sm text-gray-400">${item.value.toLocaleString()}</p>
                   </div>
-                </Card>
-              ))}
-            </div>
+                  <div className="flex items-center gap-4">
+                    <div className={`flex items-center ${item.growth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {item.growth >= 0 ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
+                      {Math.abs(item.growth)}%
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleInvest(item.name)}
+                      className="bg-purple-700 hover:bg-purple-600"
+                    >
+                      <DollarSign className="w-4 h-4 mr-1" />
+                      Invest
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
         </div>
       </main>

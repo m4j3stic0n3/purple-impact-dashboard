@@ -9,6 +9,7 @@ import Portfolio from "./pages/Portfolio";
 import News from "./pages/News";
 import Explore from "./pages/Explore";
 import Learn from "./pages/Learn";
+import PeakAI from "./pages/PeakAI";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/peakai" element={<PeakAI />} />
               <Route path="/news" element={<News />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/learn" element={<Learn />} />

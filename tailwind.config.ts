@@ -32,7 +32,7 @@ export default {
         dashboard: {
           background: "#150026",
           card: "#3a108c",
-          highlight: "#9b87f5",
+          highlight: "#0a0138",
         },
         success: {
           DEFAULT: "#4CAF50",

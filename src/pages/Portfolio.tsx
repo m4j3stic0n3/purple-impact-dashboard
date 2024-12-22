@@ -98,7 +98,7 @@ const Portfolio = () => {
   };
 
   return (
-    <div className="min-h-screen flex w-full bg-[#1A1F2C] text-white">
+    <div className="min-h-screen flex w-full bg-dashboard-background text-white">
       <DashboardSidebar />
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
@@ -110,7 +110,7 @@ const Portfolio = () => {
                   key={period.value}
                   variant={selectedPeriod === period.value ? "default" : "outline"}
                   onClick={() => setSelectedPeriod(period.value)}
-                  className="bg-dashboard-card hover:bg-dashboard-card/80"
+                  className="bg-dashboard-highlight hover:bg-dashboard-highlight/80"
                 >
                   {period.label}
                 </Button>

@@ -24,7 +24,7 @@ export function DashboardSidebar() {
     <Sidebar className="bg-dashboard-background border-r border-gray-800">
       <SidebarContent>
         <div className="p-4">
-          <img src="/lovable-uploads/691fba06-b892-4f3b-885c-3f58ebeccafe.png" alt="Peak Logo" className="w-24" />
+          <img src="/lovable-uploads/57a38a35-6ea4-42c7-bd1a-54fef1960bd0.png" alt="Peak Logo" className="w-24" />
         </div>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -34,7 +34,7 @@ export function DashboardSidebar() {
                   <SidebarMenuButton asChild>
                     <a
                       href={item.href}
-                      className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-primary/10 rounded-lg transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-dashboard-highlight/10 rounded-lg transition-colors"
                     >
                       <item.icon className="w-5 h-5" />
                       <span>{item.label}</span>

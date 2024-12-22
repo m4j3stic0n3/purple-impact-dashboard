@@ -30,8 +30,8 @@ export default {
           darker: "#6E59A5",
         },
         dashboard: {
-          background: "#1A1F2C",
-          card: "#221F26",
+          background: "#150026",
+          card: "#3a108c",
           highlight: "#9b87f5",
         },
         success: {

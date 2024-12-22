@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Download } from "lucide-react";
 
 const PeakAI = () => {
   const [query, setQuery] = useState("");
@@ -32,16 +32,41 @@ const PeakAI = () => {
     setQuery("");
   };
 
+  const handleDownload = () => {
+    const dataStr = JSON.stringify(conversation, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'peakai-conversation.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen flex w-full bg-dashboard-background text-white">
       <DashboardSidebar />
       <main className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           <Card className="bg-dashboard-card/60 backdrop-blur-lg border-gray-800 p-6 mb-6">
-            <h1 className="text-2xl font-bold mb-4">PeakAI Assistant</h1>
-            <p className="text-gray-300">
-              Your personal AI assistant for sustainable investment research and recommendations.
-            </p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold mb-4">PeakAI Assistant</h1>
+                <p className="text-gray-300">
+                  Your personal AI assistant for sustainable investment research and recommendations.
+                </p>
+              </div>
+              <Button 
+                onClick={handleDownload}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export Chat
+              </Button>
+            </div>
           </Card>
 
           <Card className="bg-dashboard-card/60 backdrop-blur-lg border-gray-800 p-6 min-h-[500px] flex flex-col">

@@ -23,7 +23,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar className="bg-dashboard-background border-r border-gray-800">
       <SidebarContent>
-        <div className="p-4">
+        <div className="px-3 py-4">
           <img src="/lovable-uploads/57a38a35-6ea4-42c7-bd1a-54fef1960bd0.png" alt="Peak Logo" className="w-24" />
         </div>
         <SidebarGroup>

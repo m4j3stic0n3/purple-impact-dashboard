@@ -10,11 +10,12 @@ export const StockPrice: React.FC<StockPriceProps> = ({ symbol }) => {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error fetching price</div>;
+  if (!data) return <div>No data available</div>;
 
   return (
     <div>
       <h3>{symbol}</h3>
-      <p>${data?.price.toFixed(2)}</p>
+      <p>${data.price.toFixed(2)}</p>
     </div>
   );
 };

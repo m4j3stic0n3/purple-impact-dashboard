@@ -4,13 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 const BASE_URL = "https://api.polygon.io";
 
 interface StockQuoteResponse {
+  status: string;
+  request_id: string;
   results: {
-    c: number;  // closing price
-    h: number;  // highest price
-    l: number;  // lowest price
-    o: number;  // opening price
-    v: number;  // volume
-  }[];
+    last: {
+      price: number;
+      size: number;
+      exchange: number;
+      timestamp: number;
+    };
+    todaysChange: number;
+    todaysChangePerc: number;
+    updated: number;
+  };
 }
 
 async function getPolygonApiKey(): Promise<string> {
@@ -35,15 +41,16 @@ async function getPolygonApiKey(): Promise<string> {
 export async function getStockQuote(symbol: string) {
   const POLYGON_API_KEY = await getPolygonApiKey();
   
+  // Using the real-time quotes endpoint instead of previous day's data
   const response = await fetch(
-    `${BASE_URL}/v2/aggs/ticker/${symbol}/prev?apiKey=${POLYGON_API_KEY}`
+    `${BASE_URL}/v2/last/trade/${symbol}?apiKey=${POLYGON_API_KEY}`
   );
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data: StockQuoteResponse = await response.json();
   return data;
 }
 
@@ -52,12 +59,13 @@ export function useStockQuote(symbol: string) {
     queryKey: ['stockQuote', symbol],
     queryFn: () => getStockQuote(symbol),
     select: (data: StockQuoteResponse) => ({
-      price: data.results[0].c,
-      high: data.results[0].h,
-      low: data.results[0].l,
-      open: data.results[0].o,
-      volume: data.results[0].v
-    })
+      price: data.results.last.price,
+      change: data.results.todaysChange,
+      changePercent: data.results.todaysChangePerc,
+      timestamp: data.results.updated
+    }),
+    // Refresh every minute to keep prices current
+    refetchInterval: 60000
   });
 }
 

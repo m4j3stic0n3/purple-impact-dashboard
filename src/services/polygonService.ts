@@ -16,7 +16,7 @@ interface StockQuoteResponse {
 async function getPolygonApiKey(): Promise<string> {
   const { data, error } = await supabase
     .from('secrets')
-    .select()
+    .select('value')
     .eq('key', 'POLYGON_API_KEY')
     .maybeSingle();
 

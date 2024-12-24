@@ -13,10 +13,6 @@ interface StockQuoteResponse {
   }[];
 }
 
-interface Secret {
-  value: string;
-}
-
 async function getPolygonApiKey(): Promise<string> {
   const { data, error } = await supabase
     .from('secrets')

@@ -25,7 +25,7 @@ async function getPolygonApiKey(): Promise<string> {
     throw new Error('Failed to fetch API key');
   }
 
-  if (!data) {
+  if (!data?.value) {
     throw new Error('API key not found');
   }
 

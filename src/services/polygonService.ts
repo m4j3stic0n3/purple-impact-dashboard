@@ -13,7 +13,11 @@ interface StockQuoteResponse {
   }[];
 }
 
-export async function getStockQuote(symbol: string) {
+interface Secret {
+  value: string;
+}
+
+async function getPolygonApiKey(): Promise<string> {
   const { data, error } = await supabase
     .from('secrets')
     .select('value')
@@ -25,7 +29,16 @@ export async function getStockQuote(symbol: string) {
     throw new Error('Failed to fetch API key');
   }
 
-  const POLYGON_API_KEY = data.value;
+  if (!data) {
+    throw new Error('API key not found');
+  }
+
+  return data.value;
+}
+
+export async function getStockQuote(symbol: string) {
+  const POLYGON_API_KEY = await getPolygonApiKey();
+  
   const response = await fetch(
     `${BASE_URL}/v2/aggs/ticker/${symbol}/prev?apiKey=${POLYGON_API_KEY}`
   );
@@ -34,8 +47,8 @@ export async function getStockQuote(symbol: string) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  const data_response = await response.json();
-  return data_response;
+  const data = await response.json();
+  return data;
 }
 
 export function useStockQuote(symbol: string) {
@@ -53,18 +66,8 @@ export function useStockQuote(symbol: string) {
 }
 
 export async function getHistoricalData(symbol: string, from: string, to: string) {
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('value')
-    .eq('key', 'POLYGON_API_KEY')
-    .single();
+  const POLYGON_API_KEY = await getPolygonApiKey();
 
-  if (error) {
-    console.error('Error fetching API key:', error);
-    throw new Error('Failed to fetch API key');
-  }
-
-  const POLYGON_API_KEY = data.value;
   const response = await fetch(
     `${BASE_URL}/v2/aggs/ticker/${symbol}/range/1/day/${from}/${to}?apiKey=${POLYGON_API_KEY}`
   );
@@ -73,23 +76,13 @@ export async function getHistoricalData(symbol: string, from: string, to: string
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  const data_response = await response.json();
-  return data_response;
+  const data = await response.json();
+  return data;
 }
 
 export async function getCompanyNews(symbol: string) {
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('value')
-    .eq('key', 'POLYGON_API_KEY')
-    .single();
+  const POLYGON_API_KEY = await getPolygonApiKey();
 
-  if (error) {
-    console.error('Error fetching API key:', error);
-    throw new Error('Failed to fetch API key');
-  }
-
-  const POLYGON_API_KEY = data.value;
   const response = await fetch(
     `${BASE_URL}/v2/reference/news?ticker=${symbol}&apiKey=${POLYGON_API_KEY}`
   );
@@ -98,6 +91,6 @@ export async function getCompanyNews(symbol: string) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  const data_response = await response.json();
-  return data_response;
+  const data = await response.json();
+  return data;
 }

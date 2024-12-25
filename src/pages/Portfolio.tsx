@@ -6,47 +6,35 @@ import { Button } from "@/components/ui/button";
 import { DollarSign, TrendingUp, TrendingDown } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getStockQuote } from "@/services/polygonService";
+import { GeminiChat } from "@/components/GeminiChat";
 
-// Mock ETF data with real tickers and approximate prices
+// Real ETF tickers with descriptions
 const portfolioETFs = [
   { 
     name: 'iShares Global Clean Energy ETF',
     ticker: 'ICLN',
-    value: 35000,
-    price: 14.82,
-    growth: 12.5,
     description: 'Tracks companies in the clean energy sector'
   },
   {
     name: 'First Trust NASDAQ Clean Edge Green Energy ETF',
     ticker: 'QCLN',
-    value: 28000,
-    price: 35.91,
-    growth: 8.2,
     description: 'Focuses on clean energy companies listed on NASDAQ'
   },
   {
     name: 'iShares Global Green Bond ETF',
     ticker: 'BGRN',
-    value: 22000,
-    price: 45.23,
-    growth: -2.1,
     description: 'Invests in green bonds funding environmental projects'
   },
   {
     name: 'Invesco Water Resources ETF',
     ticker: 'PHO',
-    value: 18000,
-    price: 57.84,
-    growth: 5.4,
     description: 'Focuses on companies in water conservation and purification'
   },
   {
     name: 'VanEck Green Bond ETF',
     ticker: 'GRNB',
-    value: 15000,
-    price: 22.15,
-    growth: 9.8,
     description: 'Tracks bonds funding environmental sustainability projects'
   },
 ];
@@ -88,7 +76,29 @@ const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#D6BCFA', '#805AD5'];
 const Portfolio = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('1m');
   const performanceData = generatePerformanceData(selectedPeriod);
-  const totalValue = portfolioETFs.reduce((acc, curr) => acc + curr.value, 0);
+
+  // Fetch real-time prices for all ETFs
+  const etfQueries = portfolioETFs.map(etf => ({
+    ...etf,
+    ...useQuery({
+      queryKey: ['etfPrice', etf.ticker],
+      queryFn: () => getStockQuote(etf.ticker),
+      select: (data) => ({
+        price: data.results.last.price,
+        change: data.results.todaysChange,
+        changePercent: data.results.todaysChangePerc
+      }),
+      refetchInterval: 60000 // Refresh every minute
+    })
+  }));
+
+  // Calculate total portfolio value
+  const totalValue = etfQueries.reduce((acc, etf) => {
+    if (etf.data?.price) {
+      return acc + etf.data.price * 100; // Assuming 100 shares of each ETF
+    }
+    return acc;
+  }, 0);
 
   const handleInvest = (etf: string) => {
     toast({
@@ -171,7 +181,7 @@ const Portfolio = () => {
           </div>
 
           <div className="grid gap-4">
-            {portfolioETFs.map((etf) => (
+            {etfQueries.map((etf) => (
               <Card key={etf.ticker} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
                 <div className="flex items-center justify-between">
                   <div>
@@ -180,13 +190,22 @@ const Portfolio = () => {
                       <span className="text-sm text-gray-400">({etf.ticker})</span>
                     </div>
                     <p className="text-sm text-gray-400 mt-1">{etf.description}</p>
-                    <p className="text-sm text-gray-400">Current Price: ${etf.price}</p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className={`flex items-center ${etf.growth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {etf.growth >= 0 ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
-                      {Math.abs(etf.growth)}%
-                    </div>
+                    {etf.isLoading ? (
+                      <div>Loading...</div>
+                    ) : etf.error ? (
+                      <div>Error loading price</div>
+                    ) : (
+                      <div className="text-right">
+                        <p className="text-lg font-semibold text-white">
+                          ${etf.data?.price.toFixed(2)}
+                        </p>
+                        <p className={`text-sm ${etf.data?.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                          {etf.data?.change.toFixed(2)} ({etf.data?.changePercent.toFixed(2)}%)
+                        </p>
+                      </div>
+                    )}
                     <Button 
                       variant="outline" 
                       onClick={() => handleInvest(etf.name)}
@@ -199,6 +218,10 @@ const Portfolio = () => {
                 </div>
               </Card>
             ))}
+          </div>
+
+          <div className="mt-8">
+            <GeminiChat />
           </div>
         </div>
       </main>

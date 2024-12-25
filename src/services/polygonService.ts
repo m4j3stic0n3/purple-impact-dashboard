@@ -24,7 +24,7 @@ async function getPolygonApiKey(): Promise<string> {
     .from('secrets')
     .select('value')
     .eq('key', 'POLYGON_API_KEY')
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching API key:', error);
@@ -32,7 +32,7 @@ async function getPolygonApiKey(): Promise<string> {
   }
 
   if (!data?.value) {
-    throw new Error('API key not found');
+    throw new Error('API key not found. Please make sure you have added your Polygon API key in the settings.');
   }
 
   return data.value;

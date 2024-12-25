@@ -84,9 +84,9 @@ const Portfolio = () => {
       queryKey: ['etfPrice', etf.ticker],
       queryFn: () => getStockQuote(etf.ticker),
       select: (data) => ({
-        price: data.results.last.price,
-        change: data.results.todaysChange,
-        changePercent: data.results.todaysChangePerc
+        price: data.price,
+        change: data.change,
+        changePercent: data.changePercent
       }),
       refetchInterval: 60000 // Refresh every minute
     })

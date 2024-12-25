@@ -1,12 +1,17 @@
 import React from 'react';
-import { useStockQuote } from '../services/polygonService';
+import { getStockQuote } from '../services/polygonService';
+import { useQuery } from '@tanstack/react-query';
 
 interface StockPriceProps {
   symbol: string;
 }
 
 export const StockPrice: React.FC<StockPriceProps> = ({ symbol }) => {
-  const { data, isLoading, error } = useStockQuote(symbol);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['stockPrice', symbol],
+    queryFn: () => getStockQuote(symbol),
+    refetchInterval: 60000
+  });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error fetching price</div>;

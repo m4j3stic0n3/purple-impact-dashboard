@@ -16,13 +16,21 @@ const portfolioData = [
   { name: 'Crypto', value: 200 },
 ];
 
+// Generate mock performance data
+const generatePerformanceData = () => {
+  return Array.from({ length: 30 }, (_, i) => ({
+    name: `Day ${i + 1}`,
+    value: Math.round(10000 + Math.random() * 5000)
+  }));
+};
+
 const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#3a108c'];
 
 const Index = () => {
   const { data: llyData } = useQuery({
     queryKey: ['stock', 'LLY'],
     queryFn: () => getStockQuote('LLY'),
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 60000,
   });
 
   const { data: pltrData } = useQuery({
@@ -30,6 +38,8 @@ const Index = () => {
     queryFn: () => getStockQuote('PLTR'),
     refetchInterval: 60000,
   });
+
+  const performanceData = generatePerformanceData();
 
   const formatPrice = (price?: number) => {
     return price ? `$${price.toFixed(2)}` : 'Loading...';

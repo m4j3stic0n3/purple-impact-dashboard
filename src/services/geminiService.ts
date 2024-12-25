@@ -1,26 +1,22 @@
 import { supabase } from "@/integrations/supabase/client";
 
 async function getGeminiApiKey(): Promise<string> {
-  console.log('Fetching Gemini API key from Supabase...');
+  console.log('Fetching Gemini API key...');
   
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('value')
-    .eq('key', 'GEMINI_API_KEY')
-    .maybeSingle();
+  const { data, error } = await supabase.functions.invoke('get-gemini-key');
 
   if (error) {
     console.error('Error fetching Gemini API key:', error);
     throw new Error('Failed to fetch Gemini API key');
   }
 
-  if (!data?.value) {
-    console.error('Gemini API key not found in Supabase secrets');
+  if (!data?.apiKey) {
+    console.error('Gemini API key not found');
     throw new Error('Gemini API key not found');
   }
 
   console.log('Successfully retrieved Gemini API key');
-  return data.value;
+  return data.apiKey;
 }
 
 export async function chatWithGemini(message: string) {

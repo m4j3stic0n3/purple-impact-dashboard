@@ -20,22 +20,18 @@ interface StockQuoteResponse {
 }
 
 async function getPolygonApiKey(): Promise<string> {
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('value')
-    .eq('key', 'POLYGON_API_KEY')
-    .maybeSingle();
-
+  const { data, error } = await supabase.functions.invoke('get-polygon-key');
+  
   if (error) {
     console.error('Error fetching API key:', error);
     throw new Error('Failed to fetch API key');
   }
 
-  if (!data?.value) {
+  if (!data?.apiKey) {
     throw new Error('API key not found. Please make sure you have added your Polygon API key in the settings.');
   }
 
-  return data.value;
+  return data.apiKey;
 }
 
 export async function getStockQuote(symbol: string) {

@@ -41,15 +41,19 @@ async function getPolygonApiKey(): Promise<string> {
 export async function getStockQuote(symbol: string) {
   const POLYGON_API_KEY = await getPolygonApiKey();
   
+  console.log(`Fetching stock quote for ${symbol}...`);
+  
   const response = await fetch(
     `${BASE_URL}/v2/last/trade/${symbol}?apiKey=${POLYGON_API_KEY}`
   );
 
   if (!response.ok) {
+    console.error(`Error fetching ${symbol}:`, response.status, response.statusText);
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
   const data: StockQuoteResponse = await response.json();
+  console.log(`Received data for ${symbol}:`, data);
   
   return {
     price: data.results.last.price,

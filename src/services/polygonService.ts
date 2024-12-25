@@ -24,7 +24,7 @@ async function getPolygonApiKey(): Promise<string> {
     .from('secrets')
     .select('value')
     .eq('key', 'POLYGON_API_KEY')
-    .maybeSingle();
+    .single();
 
   if (error) {
     console.error('Error fetching API key:', error);
@@ -41,7 +41,6 @@ async function getPolygonApiKey(): Promise<string> {
 export async function getStockQuote(symbol: string) {
   const POLYGON_API_KEY = await getPolygonApiKey();
   
-  // Using the real-time quotes endpoint instead of previous day's data
   const response = await fetch(
     `${BASE_URL}/v2/last/trade/${symbol}?apiKey=${POLYGON_API_KEY}`
   );
@@ -51,22 +50,13 @@ export async function getStockQuote(symbol: string) {
   }
 
   const data: StockQuoteResponse = await response.json();
-  return data;
-}
-
-export function useStockQuote(symbol: string) {
-  return useQuery({
-    queryKey: ['stockQuote', symbol],
-    queryFn: () => getStockQuote(symbol),
-    select: (data: StockQuoteResponse) => ({
-      price: data.results.last.price,
-      change: data.results.todaysChange,
-      changePercent: data.results.todaysChangePerc,
-      timestamp: data.results.updated
-    }),
-    // Refresh every minute to keep prices current
-    refetchInterval: 60000
-  });
+  
+  return {
+    price: data.results.last.price,
+    change: data.results.todaysChange,
+    changePercent: data.results.todaysChangePerc,
+    timestamp: data.results.updated
+  };
 }
 
 export async function getHistoricalData(symbol: string, from: string, to: string) {

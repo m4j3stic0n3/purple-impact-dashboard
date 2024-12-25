@@ -4,16 +4,10 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { RecommendedStock } from "@/components/RecommendedStock";
 import { Card } from "@/components/ui/card";
+import { GeminiChat } from "@/components/GeminiChat";
+import { useQuery } from "@tanstack/react-query";
+import { getStockQuote } from "@/services/polygonService";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-
-const performanceData = [
-  { name: 'Jan', value: 4000 },
-  { name: 'Feb', value: 3000 },
-  { name: 'Mar', value: 5000 },
-  { name: 'Apr', value: 2780 },
-  { name: 'May', value: 1890 },
-  { name: 'Jun', value: 2390 },
-];
 
 const portfolioData = [
   { name: 'Stocks', value: 400 },
@@ -25,12 +19,34 @@ const portfolioData = [
 const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#3a108c'];
 
 const Index = () => {
+  const { data: llyData } = useQuery({
+    queryKey: ['stock', 'LLY'],
+    queryFn: () => getStockQuote('LLY'),
+    refetchInterval: 60000, // Refresh every minute
+  });
+
+  const { data: pltrData } = useQuery({
+    queryKey: ['stock', 'PLTR'],
+    queryFn: () => getStockQuote('PLTR'),
+    refetchInterval: 60000,
+  });
+
+  const formatPrice = (price?: number) => {
+    return price ? `$${price.toFixed(2)}` : 'Loading...';
+  };
+
+  const formatChange = (change?: number, changePercent?: number) => {
+    if (!change || !changePercent) return 'Loading...';
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}$${change.toFixed(2)} (${sign}${changePercent.toFixed(2)}%)`;
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-dashboard-background text-white">
         <DashboardSidebar />
         <main className="flex-1 p-8">
-          <div className="max-w-5xl mx-auto"> {/* Reduced from max-w-7xl to max-w-5xl */}
+          <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <MetricCard
                 title="Next Earnings Report"
@@ -55,17 +71,17 @@ const Index = () => {
               <RecommendedStock
                 name="Eli Lilly & Co"
                 symbol="LLY"
-                price="$795.35"
-                change="+$7.16"
-                changePercent="0.91%"
+                price={formatPrice(llyData?.price)}
+                change={formatChange(llyData?.change, llyData?.changePercent)}
+                changePercent={llyData?.changePercent ? `${llyData.changePercent.toFixed(2)}%` : 'Loading...'}
                 description="Eli Lilly has been a fantastic growth stock to own in recent years. Entering trading this week, its five-year returns have totaled more than 550%."
               />
               <RecommendedStock
                 name="Palantir"
                 symbol="PLTR"
-                price="$67.08"
-                change="+$1.03"
-                changePercent="1.56%"
+                price={formatPrice(pltrData?.price)}
+                change={formatChange(pltrData?.change, pltrData?.changePercent)}
+                changePercent={pltrData?.changePercent ? `${pltrData.changePercent.toFixed(2)}%` : 'Loading...'}
                 description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million and adjusted earnings of $0.10 per share."
               />
             </div>
@@ -127,6 +143,10 @@ const Index = () => {
                   </ResponsiveContainer>
                 </div>
               </Card>
+            </div>
+
+            <div className="mt-6">
+              <GeminiChat />
             </div>
           </div>
         </main>

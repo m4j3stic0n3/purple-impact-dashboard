@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { PolygonQuoteResponse } from "@/types/api";
 
 const BASE_URL = "https://api.polygon.io";
 
@@ -111,14 +112,14 @@ async function getPolygonApiKey(): Promise<string> {
   }
 }
 
-export async function getStockQuote(symbol: string) {
+export async function getStockQuote(symbol: string): Promise<PolygonQuoteResponse> {
   return new Promise((resolve) => {
     const fetchData = async () => {
       try {
         console.log(`Fetching stock quote for ${symbol}...`);
         
         const POLYGON_API_KEY = await getPolygonApiKey();
-        const url = `${BASE_URL}/v2/aggs/ticker/${symbol}/prev?apiKey=${POLYGON_API_KEY}`.replace('://', '://').replace(/:[^/]/, '');
+        const url = `${BASE_URL}/v2/aggs/ticker/${symbol}/prev?apiKey=${POLYGON_API_KEY}`;
         
         trackApiCall();
         const response = await fetch(url);
@@ -145,8 +146,8 @@ export async function getStockQuote(symbol: string) {
 
         const result = data.results[0];
         resolve({
-          price: result.c, // Close price
-          change: result.c - result.o, // Close - Open
+          price: result.c,
+          change: result.c - result.o,
           changePercent: ((result.c - result.o) / result.o) * 100,
           timestamp: result.t
         });
@@ -168,7 +169,7 @@ export async function getHistoricalData(symbol: string, from: string, to: string
     }
 
     const POLYGON_API_KEY = await getPolygonApiKey();
-    const url = `${BASE_URL}/v2/aggs/ticker/${symbol}/range/1/day/${from}/${to}?apiKey=${POLYGON_API_KEY}`.replace('://', '://').replace(/:[^/]/, '');
+    const url = `${BASE_URL}/v2/aggs/ticker/${symbol}/range/1/day/${from}/${to}?apiKey=${POLYGON_API_KEY}`;
 
     trackApiCall();
     const response = await fetch(url);
@@ -192,7 +193,7 @@ export async function getCompanyNews(symbol: string) {
     }
 
     const POLYGON_API_KEY = await getPolygonApiKey();
-    const url = `${BASE_URL}/v2/reference/news?ticker=${symbol}&apiKey=${POLYGON_API_KEY}`.replace('://', '://').replace(/:[^/]/, '');
+    const url = `${BASE_URL}/v2/reference/news?ticker=${symbol}&apiKey=${POLYGON_API_KEY}`;
 
     trackApiCall();
     const response = await fetch(url);

@@ -1,14 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { ChartContainer } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, TrendingDown } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getStockQuote } from "@/services/polygonService";
 import { GeminiChat } from "@/components/GeminiChat";
+import { BillingForm } from "@/components/BillingForm";
 
 // Real ETF tickers with descriptions
 const portfolioETFs = [
@@ -218,6 +219,10 @@ const Portfolio = () => {
                 </div>
               </Card>
             ))}
+          </div>
+
+          <div className="mt-8">
+            <BillingForm />
           </div>
 
           <div className="mt-8">

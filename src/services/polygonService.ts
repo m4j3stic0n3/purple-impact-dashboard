@@ -31,29 +31,3 @@ export async function getStockQuote(symbol: string): Promise<PolygonQuoteRespons
     }
   });
 }
-
-export async function getHistoricalData(symbol: string, from: string, to: string) {
-  return rateLimiter.enqueueRequest(async () => {
-    try {
-      const data = await makePolygonRequest(`/v2/aggs/ticker/${symbol}/range/1/day/${from}/${to}`);
-      rateLimiter.trackApiCall();
-      return data;
-    } catch (error) {
-      console.error('Error fetching historical data:', error);
-      throw error;
-    }
-  });
-}
-
-export async function getCompanyNews(symbol: string) {
-  return rateLimiter.enqueueRequest(async () => {
-    try {
-      const data = await makePolygonRequest(`/v2/reference/news?ticker=${symbol}`);
-      rateLimiter.trackApiCall();
-      return data;
-    } catch (error) {
-      console.error('Error fetching company news:', error);
-      throw error;
-    }
-  });
-}

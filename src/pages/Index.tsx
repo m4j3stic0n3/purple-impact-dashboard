@@ -4,7 +4,6 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { RecommendedStock } from "@/components/RecommendedStock";
 import { Card } from "@/components/ui/card";
-import { GeminiChat } from "@/components/GeminiChat";
 import { useQuery } from "@tanstack/react-query";
 import { getStockQuote } from "@/services/polygonService";
 import { 
@@ -15,10 +14,8 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
 } from 'recharts';
+import { PortfolioComposition } from "@/components/PortfolioComposition";
 
 const portfolioData = [
   { name: 'Stocks', value: 400 },
@@ -27,15 +24,12 @@ const portfolioData = [
   { name: 'Crypto', value: 200 },
 ];
 
-// Generate mock performance data
 const generatePerformanceData = () => {
   return Array.from({ length: 30 }, (_, i) => ({
     name: `Day ${i + 1}`,
     value: Math.round(10000 + Math.random() * 5000)
   }));
 };
-
-const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#3a108c'];
 
 const watchlistStocks = [
   { symbol: 'TSLA', name: 'Tesla, Inc.' },
@@ -182,40 +176,7 @@ const Index = () => {
                   </ResponsiveContainer>
                 </div>
               </Card>
-              <Card className="p-6 bg-dashboard-card/60 backdrop-blur-lg border-gray-800">
-                <h3 className="text-lg font-semibold mb-4">Portfolio Composition</h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={portfolioData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {portfolioData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: '#1a1a1a', 
-                          border: '1px solid #333',
-                          borderRadius: '4px'
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </Card>
-            </div>
-
-            <div className="mt-6">
-              <GeminiChat />
+              <PortfolioComposition data={portfolioData} />
             </div>
           </div>
         </main>

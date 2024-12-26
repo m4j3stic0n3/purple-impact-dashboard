@@ -42,6 +42,12 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          billing_address: string | null
+          billing_city: string | null
+          billing_country: string | null
+          billing_postal_code: string | null
+          billing_state: string | null
+          billing_updated: boolean | null
           created_at: string
           full_name: string | null
           id: string
@@ -50,6 +56,12 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_postal_code?: string | null
+          billing_state?: string | null
+          billing_updated?: boolean | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -58,6 +70,12 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_postal_code?: string | null
+          billing_state?: string | null
+          billing_updated?: boolean | null
           created_at?: string
           full_name?: string | null
           id?: string

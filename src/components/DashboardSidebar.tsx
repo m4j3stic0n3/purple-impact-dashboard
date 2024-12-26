@@ -1,4 +1,4 @@
-import { Home, FolderOpen, Brain, Newspaper, Search, Lightbulb } from "lucide-react";
+import { Home, FolderOpen, Brain, Newspaper, Search, Lightbulb, CreditCard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ const menuItems = [
   { icon: Newspaper, label: "News", href: "/news" },
   { icon: Search, label: "Explore", href: "/explore" },
   { icon: Lightbulb, label: "Learn", href: "/learn" },
+  { icon: CreditCard, label: "Billing", href: "/billing" },
 ];
 
 export function DashboardSidebar() {

@@ -7,7 +7,18 @@ import { Card } from "@/components/ui/card";
 import { GeminiChat } from "@/components/GeminiChat";
 import { useQuery } from "@tanstack/react-query";
 import { getStockQuote } from "@/services/polygonService";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 
 const portfolioData = [
   { name: 'Stocks', value: 400 },

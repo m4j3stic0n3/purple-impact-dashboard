@@ -1,137 +1,182 @@
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Bookmark, Share2, Tabs, TabsContent, TabsList, TabsTrigger } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { Bookmark } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { GeminiChat } from "@/components/GeminiChat";
 
-const sampleNews = [
+const newsArticles = [
   {
     id: 1,
-    title: "Renewable Energy Investment Surge",
-    description: "Global investment in renewable energy reaches record high as sustainable technologies become more cost-effective.",
-    category: "Clean Energy",
-    date: "2024-03-15",
-    image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81"
+    title: "Tesla's New Battery Technology Breakthrough",
+    source: "TechCrunch",
+    date: "2024-02-15",
+    category: "Technology",
+    summary: "Tesla announces revolutionary new battery technology that could increase range by 50%..."
   },
   {
     id: 2,
-    title: "ESG Funds Outperform Traditional Investments",
-    description: "Environmental, Social, and Governance funds show strong performance in Q1 2024.",
-    category: "ESG Investing",
-    date: "2024-03-14",
-    image: "https://images.unsplash.com/photo-1473091534298-04dcbce3278c"
+    title: "Federal Reserve Holds Interest Rates Steady",
+    source: "Bloomberg",
+    date: "2024-02-14",
+    category: "Economy",
+    summary: "The Federal Reserve maintains current interest rates, signals potential cuts later this year..."
   },
   {
     id: 3,
-    title: "New Sustainable Technology Breakthrough",
-    description: "Revolutionary carbon capture technology shows promising results in initial trials.",
-    category: "Innovation",
-    date: "2024-03-13",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c"
+    title: "Apple's AI Strategy Revealed",
+    source: "Reuters",
+    date: "2024-02-13",
+    category: "Technology",
+    summary: "Apple's ambitious plans for AI integration across its product lineup detailed in new report..."
+  },
+  {
+    id: 4,
+    title: "Green Energy Investment Surge",
+    source: "Financial Times",
+    date: "2024-02-12",
+    category: "ESG",
+    summary: "Global investment in renewable energy projects reaches record high in Q4 2023..."
+  },
+  {
+    id: 5,
+    title: "Cryptocurrency Market Analysis",
+    source: "CoinDesk",
+    date: "2024-02-11",
+    category: "Crypto",
+    summary: "Bitcoin and major altcoins show strong recovery amid institutional adoption..."
   }
 ];
 
-const savedArticles = [
-  {
-    id: 4,
-    title: "Green Energy Revolution",
-    description: "How renewable energy is reshaping the global economy and investment landscape.",
-    category: "Sustainability",
-    date: "2024-03-12",
-    image: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9"
-  },
-  // Add more saved articles as needed
-];
-
 const News = () => {
-  const [activeTab, setActiveTab] = useState("all");
-  
-  const handleBookmark = (id: number) => {
-    toast({
-      title: "Article Bookmarked",
-      description: "The article has been saved to your bookmarks.",
-    });
-  };
-
-  const handleShare = (id: number) => {
-    toast({
-      title: "Share Link Copied",
-      description: "The article link has been copied to your clipboard.",
-    });
-  };
-
   return (
-    <div className="min-h-screen flex w-full bg-[#1A1F2C] text-white">
-      <DashboardSidebar />
-      <main className="flex-1 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">Impact Investment News</h1>
-            <div className="flex gap-2">
-              <Button
-                variant={activeTab === "all" ? "default" : "outline"}
-                onClick={() => setActiveTab("all")}
-                className="bg-purple-700 hover:bg-purple-600"
-              >
-                All News
-              </Button>
-              <Button
-                variant={activeTab === "saved" ? "default" : "outline"}
-                onClick={() => setActiveTab("saved")}
-                className="bg-purple-700 hover:bg-purple-600"
-              >
-                Saved Articles
-              </Button>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-dashboard-background text-white">
+        <DashboardSidebar />
+        <main className="flex-1 p-8">
+          <div className="max-w-5xl mx-auto">
+            <h1 className="text-3xl font-bold mb-8">Market News & Analysis</h1>
+            
+            <Tabs defaultValue="all" className="mb-8">
+              <TabsList>
+                <TabsTrigger value="all">All News</TabsTrigger>
+                <TabsTrigger value="technology">Technology</TabsTrigger>
+                <TabsTrigger value="economy">Economy</TabsTrigger>
+                <TabsTrigger value="esg">ESG</TabsTrigger>
+                <TabsTrigger value="crypto">Crypto</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="all" className="space-y-4">
+                {newsArticles.map((article) => (
+                  <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
+                        <p className="text-sm text-gray-400 mb-2">
+                          {article.source} • {article.date} • {article.category}
+                        </p>
+                        <p className="text-gray-300">{article.summary}</p>
+                      </div>
+                      <button className="p-2 hover:bg-purple-700/20 rounded-full">
+                        <Bookmark className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </Card>
+                ))}
+              </TabsContent>
+
+              <TabsContent value="technology" className="space-y-4">
+                {newsArticles
+                  .filter((article) => article.category === "Technology")
+                  .map((article) => (
+                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
+                          <p className="text-sm text-gray-400 mb-2">
+                            {article.source} • {article.date} • {article.category}
+                          </p>
+                          <p className="text-gray-300">{article.summary}</p>
+                        </div>
+                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
+                          <Bookmark className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </Card>
+                  ))}
+              </TabsContent>
+
+              <TabsContent value="economy" className="space-y-4">
+                {newsArticles
+                  .filter((article) => article.category === "Economy")
+                  .map((article) => (
+                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
+                          <p className="text-sm text-gray-400 mb-2">
+                            {article.source} • {article.date} • {article.category}
+                          </p>
+                          <p className="text-gray-300">{article.summary}</p>
+                        </div>
+                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
+                          <Bookmark className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </Card>
+                  ))}
+              </TabsContent>
+
+              <TabsContent value="esg" className="space-y-4">
+                {newsArticles
+                  .filter((article) => article.category === "ESG")
+                  .map((article) => (
+                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
+                          <p className="text-sm text-gray-400 mb-2">
+                            {article.source} • {article.date} • {article.category}
+                          </p>
+                          <p className="text-gray-300">{article.summary}</p>
+                        </div>
+                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
+                          <Bookmark className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </Card>
+                  ))}
+              </TabsContent>
+
+              <TabsContent value="crypto" className="space-y-4">
+                {newsArticles
+                  .filter((article) => article.category === "Crypto")
+                  .map((article) => (
+                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
+                          <p className="text-sm text-gray-400 mb-2">
+                            {article.source} • {article.date} • {article.category}
+                          </p>
+                          <p className="text-gray-300">{article.summary}</p>
+                        </div>
+                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
+                          <Bookmark className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </Card>
+                  ))}
+              </TabsContent>
+            </Tabs>
+
+            <div className="mt-8">
+              <GeminiChat />
             </div>
           </div>
-          
-          <div className="grid gap-6">
-            {(activeTab === "all" ? sampleNews : savedArticles).map((article) => (
-              <Card key={article.id} className="p-6 bg-[#2A2F3C]/60 backdrop-blur-lg border-purple-800">
-                <div className="flex gap-6">
-                  <img 
-                    src={article.image} 
-                    alt={article.title}
-                    className="w-48 h-32 object-cover rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <span className="text-sm text-purple-400">{article.category}</span>
-                        <h2 className="text-xl font-semibold mt-1">{article.title}</h2>
-                        <p className="text-gray-400 mt-2">{article.description}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleBookmark(article.id)}
-                          className={`bg-purple-700 hover:bg-purple-600 ${activeTab === "saved" ? "text-yellow-400" : ""}`}
-                        >
-                          <Bookmark className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleShare(article.id)}
-                          className="bg-purple-700 hover:bg-purple-600"
-                        >
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="mt-4 text-sm text-gray-400">
-                      Published on {new Date(article.date).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 

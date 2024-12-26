@@ -2,20 +2,21 @@ import { supabase } from "@/integrations/supabase/client";
 
 const BASE_URL = "https://api.polygon.io";
 
-interface StockQuoteResponse {
-  status: string;
-  request_id: string;
-  results: {
-    last: {
-      price: number;
-      size: number;
-      exchange: number;
-      timestamp: number;
-    };
-    todaysChange: number;
-    todaysChangePerc: number;
-    updated: number;
-  };
+// Rate limiting setup - 5 calls per minute
+const CALLS_PER_MINUTE = 5;
+const callsQueue: number[] = [];
+
+function canMakeCall(): boolean {
+  const now = Date.now();
+  // Remove calls older than 1 minute
+  while (callsQueue.length > 0 && callsQueue[0] < now - 60000) {
+    callsQueue.shift();
+  }
+  return callsQueue.length < CALLS_PER_MINUTE;
+}
+
+function trackApiCall() {
+  callsQueue.push(Date.now());
 }
 
 // Mock data for development and fallback
@@ -56,13 +57,19 @@ async function getPolygonApiKey(): Promise<string> {
 
 export async function getStockQuote(symbol: string) {
   try {
+    if (!canMakeCall()) {
+      console.log(`Rate limit reached, using mock data for ${symbol}`);
+      return mockStockData[symbol];
+    }
+
     console.log(`Fetching stock quote for ${symbol}...`);
     
     const POLYGON_API_KEY = await getPolygonApiKey();
     
-    // Remove any trailing colons from the URL
-    const url = `${BASE_URL}/v2/last/trade/${symbol}?apiKey=${POLYGON_API_KEY}`.replace('://', '://').replace(/:[^/]/, '');
+    // Use previous day close endpoint instead of last trade
+    const url = `${BASE_URL}/v2/aggs/ticker/${symbol}/prev?apiKey=${POLYGON_API_KEY}`.replace('://', '://').replace(/:[^/]/, '');
     
+    trackApiCall();
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -81,27 +88,31 @@ export async function getStockQuote(symbol: string) {
       return mockStockData[symbol];
     }
 
-    const data: StockQuoteResponse = await response.json();
-    console.log(`Received data for ${symbol}:`, data);
+    const data = await response.json();
+    const result = data.results[0];
     
     return {
-      price: data.results.last.price,
-      change: data.results.todaysChange,
-      changePercent: data.results.todaysChangePerc,
-      timestamp: data.results.updated
+      price: result.c, // Close price
+      change: result.c - result.o, // Close - Open
+      changePercent: ((result.c - result.o) / result.o) * 100,
+      timestamp: result.t
     };
   } catch (error) {
     console.error(`Error fetching ${symbol}:`, error);
-    console.log(`Falling back to mock data for ${symbol}`);
     return mockStockData[symbol];
   }
 }
 
 export async function getHistoricalData(symbol: string, from: string, to: string) {
   try {
+    if (!canMakeCall()) {
+      throw new Error('Rate limit reached');
+    }
+
     const POLYGON_API_KEY = await getPolygonApiKey();
     const url = `${BASE_URL}/v2/aggs/ticker/${symbol}/range/1/day/${from}/${to}?apiKey=${POLYGON_API_KEY}`.replace('://', '://').replace(/:[^/]/, '');
 
+    trackApiCall();
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -118,9 +129,14 @@ export async function getHistoricalData(symbol: string, from: string, to: string
 
 export async function getCompanyNews(symbol: string) {
   try {
+    if (!canMakeCall()) {
+      throw new Error('Rate limit reached');
+    }
+
     const POLYGON_API_KEY = await getPolygonApiKey();
     const url = `${BASE_URL}/v2/reference/news?ticker=${symbol}&apiKey=${POLYGON_API_KEY}`.replace('://', '://').replace(/:[^/]/, '');
 
+    trackApiCall();
     const response = await fetch(url);
 
     if (!response.ok) {

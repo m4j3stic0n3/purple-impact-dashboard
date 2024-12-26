@@ -1,4 +1,4 @@
-import { Calendar, Target } from "lucide-react";
+import { Calendar, Target, Star } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { MetricCard } from "@/components/MetricCard";
@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { GeminiChat } from "@/components/GeminiChat";
 import { useQuery } from "@tanstack/react-query";
 import { getStockQuote } from "@/services/polygonService";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const portfolioData = [
   { name: 'Stocks', value: 400 },
@@ -25,6 +25,12 @@ const generatePerformanceData = () => {
 };
 
 const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#3a108c'];
+
+const watchlistStocks = [
+  { symbol: 'TSLA', name: 'Tesla, Inc.' },
+  { symbol: 'AAPL', name: 'Apple Inc.' },
+  { symbol: 'NVDA', name: 'NVIDIA Corporation' },
+];
 
 const Index = () => {
   const { data: llyData } = useQuery({
@@ -51,6 +57,16 @@ const Index = () => {
     return `${sign}$${change.toFixed(2)} (${sign}${changePercent.toFixed(2)}%)`;
   };
 
+  // Add queries for watchlist stocks
+  const watchlistQueries = watchlistStocks.map(stock => ({
+    ...stock,
+    ...useQuery({
+      queryKey: ['stock', stock.symbol],
+      queryFn: () => getStockQuote(stock.symbol),
+      refetchInterval: 60000,
+    })
+  }));
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-dashboard-background text-white">
@@ -74,6 +90,38 @@ const Index = () => {
                 subtitle="0.12% (+$105.18)"
                 className="text-success"
               />
+            </div>
+
+            <h2 className="text-xl font-semibold mt-8 mb-4">Watchlist:</h2>
+            <div className="grid gap-4 mb-8">
+              {watchlistQueries.map((stock) => (
+                <Card key={stock.symbol} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-5 h-5 text-yellow-400" />
+                      <div>
+                        <h4 className="font-semibold">{stock.name}</h4>
+                        <span className="text-sm text-gray-400">{stock.symbol}</span>
+                      </div>
+                    </div>
+                    {stock.isLoading ? (
+                      <div>Loading...</div>
+                    ) : stock.error ? (
+                      <div>Error loading price</div>
+                    ) : (
+                      <div className="text-right">
+                        <p className="text-lg font-semibold">
+                          ${stock.data?.price.toFixed(2)}
+                        </p>
+                        <p className={`text-sm ${stock.data?.change >= 0 ? 'text-success' : 'text-red-500'}`}>
+                          {stock.data?.change >= 0 ? '+' : ''}{stock.data?.change.toFixed(2)} 
+                          ({stock.data?.changePercent.toFixed(2)}%)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              ))}
             </div>
 
             <h2 className="text-xl font-semibold mt-8 mb-4">Recommended Stocks:</h2>

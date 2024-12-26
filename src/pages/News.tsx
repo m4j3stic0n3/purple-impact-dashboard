@@ -1,8 +1,9 @@
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Share2 } from "lucide-react";
+import { Bookmark, Share2, Tabs, TabsContent, TabsList, TabsTrigger } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { useState } from "react";
 
 const sampleNews = [
   {
@@ -31,7 +32,21 @@ const sampleNews = [
   }
 ];
 
+const savedArticles = [
+  {
+    id: 4,
+    title: "Green Energy Revolution",
+    description: "How renewable energy is reshaping the global economy and investment landscape.",
+    category: "Sustainability",
+    date: "2024-03-12",
+    image: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9"
+  },
+  // Add more saved articles as needed
+];
+
 const News = () => {
+  const [activeTab, setActiveTab] = useState("all");
+  
   const handleBookmark = (id: number) => {
     toast({
       title: "Article Bookmarked",
@@ -51,10 +66,28 @@ const News = () => {
       <DashboardSidebar />
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Impact Investment News</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Impact Investment News</h1>
+            <div className="flex gap-2">
+              <Button
+                variant={activeTab === "all" ? "default" : "outline"}
+                onClick={() => setActiveTab("all")}
+                className="bg-purple-700 hover:bg-purple-600"
+              >
+                All News
+              </Button>
+              <Button
+                variant={activeTab === "saved" ? "default" : "outline"}
+                onClick={() => setActiveTab("saved")}
+                className="bg-purple-700 hover:bg-purple-600"
+              >
+                Saved Articles
+              </Button>
+            </div>
+          </div>
           
           <div className="grid gap-6">
-            {sampleNews.map((article) => (
+            {(activeTab === "all" ? sampleNews : savedArticles).map((article) => (
               <Card key={article.id} className="p-6 bg-[#2A2F3C]/60 backdrop-blur-lg border-purple-800">
                 <div className="flex gap-6">
                   <img 
@@ -74,7 +107,7 @@ const News = () => {
                           variant="outline"
                           size="icon"
                           onClick={() => handleBookmark(article.id)}
-                          className="bg-purple-700 hover:bg-purple-600"
+                          className={`bg-purple-700 hover:bg-purple-600 ${activeTab === "saved" ? "text-yellow-400" : ""}`}
                         >
                           <Bookmark className="h-4 w-4" />
                         </Button>

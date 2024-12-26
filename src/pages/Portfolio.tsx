@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getStockQuote } from "@/services/polygonService";
 import { GeminiChat } from "@/components/GeminiChat";
-import { BillingForm } from "@/components/BillingForm";
 
 // Real ETF tickers with descriptions
 const portfolioETFs = [
@@ -77,6 +76,16 @@ const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#D6BCFA', '#805AD5'];
 const Portfolio = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('1m');
   const performanceData = generatePerformanceData(selectedPeriod);
+
+  // Portfolio composition data
+  const portfolioComposition = [
+    { name: 'Clean Energy', value: 35 },
+    { name: 'Green Bonds', value: 25 },
+    { name: 'Water Resources', value: 20 },
+    { name: 'Sustainable Tech', value: 20 },
+  ];
+
+  const COLORS = ['#9b87f5', '#7E69AB', '#6E59A5', '#3a108c'];
 
   // Fetch real-time prices for all ETFs
   const etfQueries = portfolioETFs.map(etf => ({
@@ -159,7 +168,7 @@ const Portfolio = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={portfolioETFs}
+                      data={portfolioComposition}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -168,13 +177,11 @@ const Portfolio = () => {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {portfolioETFs.map((entry, index) => (
+                      {portfolioComposition.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Value']}
-                    />
+                    <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -219,10 +226,6 @@ const Portfolio = () => {
                 </div>
               </Card>
             ))}
-          </div>
-
-          <div className="mt-8">
-            <BillingForm />
           </div>
 
           <div className="mt-8">

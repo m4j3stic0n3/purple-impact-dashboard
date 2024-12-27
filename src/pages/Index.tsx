@@ -41,13 +41,15 @@ const Index = () => {
   const { data: llyData } = useQuery({
     queryKey: ['stock', 'LLY'],
     queryFn: () => getStockQuote('LLY'),
-    refetchInterval: 60000,
+    refetchInterval: 120000, // Increased to 2 minutes
+    staleTime: 60000, // Consider data fresh for 1 minute
   });
 
   const { data: pltrData } = useQuery({
     queryKey: ['stock', 'PLTR'],
     queryFn: () => getStockQuote('PLTR'),
-    refetchInterval: 60000,
+    refetchInterval: 120000,
+    staleTime: 60000,
   });
 
   const performanceData = generatePerformanceData();
@@ -62,13 +64,14 @@ const Index = () => {
     return `${sign}$${change.toFixed(2)} (${sign}${changePercent.toFixed(2)}%)`;
   };
 
-  // Add queries for watchlist stocks
+  // Add queries for watchlist stocks with increased intervals
   const watchlistQueries = watchlistStocks.map(stock => ({
     ...stock,
     ...useQuery({
       queryKey: ['stock', stock.symbol],
       queryFn: () => getStockQuote(stock.symbol),
-      refetchInterval: 60000,
+      refetchInterval: 120000,
+      staleTime: 60000,
     })
   }));
 

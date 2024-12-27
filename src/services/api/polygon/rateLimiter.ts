@@ -1,5 +1,5 @@
-const CALLS_PER_MINUTE = 5; // Reduced from previous value
-const COOLDOWN_MS = 15000; // Increased cooldown between calls to 15 seconds
+const CALLS_PER_MINUTE = 2; // Reduced from 5 to be more conservative
+const COOLDOWN_MS = 30000; // Increased cooldown between calls to 30 seconds
 
 export class RateLimiter {
   private callsQueue: number[] = [];
@@ -17,6 +17,7 @@ export class RateLimiter {
 
     // Ensure minimum time between calls
     if (now - this.lastCallTime < COOLDOWN_MS) {
+      console.log(`Waiting for cooldown... ${((COOLDOWN_MS - (now - this.lastCallTime)) / 1000).toFixed(1)}s remaining`);
       return false;
     }
 
@@ -27,6 +28,7 @@ export class RateLimiter {
     const now = Date.now();
     this.callsQueue.push(now);
     this.lastCallTime = now;
+    console.log(`API call tracked. Calls in last minute: ${this.callsQueue.length}`);
   }
 
   public async enqueueRequest(request: () => Promise<any>): Promise<any> {
@@ -37,7 +39,6 @@ export class RateLimiter {
           resolve(result);
         } catch (error) {
           console.error('Error processing request:', error);
-          // Return mock data on error
           resolve(undefined);
         }
       };
@@ -53,7 +54,7 @@ export class RateLimiter {
 
     while (this.requestQueue.length > 0) {
       if (!this.canMakeCall()) {
-        await new Promise(resolve => setTimeout(resolve, COOLDOWN_MS));
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Check every 5 seconds
         continue;
       }
 

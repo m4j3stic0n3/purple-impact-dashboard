@@ -14,7 +14,12 @@ export async function getStockQuote(symbol: string): Promise<PolygonQuoteRespons
       
       if (!data.results?.[0]) {
         console.log(`No data available for ${symbol}, using mock data`);
-        return mockStockData[symbol];
+        return mockStockData[symbol] || {
+          price: 0,
+          change: 0,
+          changePercent: 0,
+          timestamp: Date.now()
+        };
       }
 
       const result = data.results[0];
@@ -27,7 +32,12 @@ export async function getStockQuote(symbol: string): Promise<PolygonQuoteRespons
     } catch (error) {
       console.error(`Error fetching ${symbol}:`, error);
       console.log(`Falling back to mock data for ${symbol}`);
-      return mockStockData[symbol];
+      return mockStockData[symbol] || {
+        price: 0,
+        change: 0,
+        changePercent: 0,
+        timestamp: Date.now()
+      };
     }
   });
 }

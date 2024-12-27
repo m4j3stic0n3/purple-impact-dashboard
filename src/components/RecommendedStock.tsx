@@ -33,20 +33,11 @@ export function RecommendedStock({
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "Please sign in to manage your watchlist",
-          variant: "destructive",
-        });
-        return;
-      }
-
       if (isInWatchlist) {
         const { error } = await supabase
           .from('watchlist')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', user?.id)
           .eq('symbol', symbol);
 
         if (error) throw error;
@@ -58,7 +49,7 @@ export function RecommendedStock({
       } else {
         const { error } = await supabase
           .from('watchlist')
-          .insert([{ user_id: user.id, symbol }]);
+          .insert([{ user_id: user?.id, symbol }]);
 
         if (error) throw error;
         setIsInWatchlist(true);
@@ -68,9 +59,10 @@ export function RecommendedStock({
         });
       }
     } catch (error) {
+      console.error('Error updating watchlist:', error);
       toast({
         title: "Error",
-        description: "Failed to update watchlist",
+        description: "Failed to update watchlist. Please try again.",
         variant: "destructive",
       });
     }

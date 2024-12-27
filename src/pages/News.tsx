@@ -1,11 +1,9 @@
 import { DashboardSidebar } from "@/components/DashboardSidebar";
-import { Card } from "@/components/ui/card";
-import { Bookmark } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { useState } from "react";
+import { NewsTabContent } from "@/components/NewsTabContent";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
 
 const newsArticles = [
   {
@@ -51,42 +49,26 @@ const newsArticles = [
 ];
 
 const News = () => {
-  const [savedArticles, setSavedArticles] = useState<number[]>([]);
-
-  const handleSaveArticle = async (articleId: number) => {
-    try {
+  const { data: savedArticles } = useQuery({
+    queryKey: ['saved-articles'],
+    queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
       
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "Please sign in to save articles",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (savedArticles.includes(articleId)) {
-        setSavedArticles(savedArticles.filter(id => id !== articleId));
-        toast({
-          title: "Success",
-          description: "Article removed from saved articles",
-        });
-      } else {
-        setSavedArticles([...savedArticles, articleId]);
-        toast({
-          title: "Success",
-          description: "Article saved successfully",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save article",
-        variant: "destructive",
-      });
+      const { data, error } = await supabase
+        .from('saved_articles')
+        .select('article_id')
+        .eq('user_id', user.id);
+        
+      if (error) throw error;
+      return data.map(item => item.article_id);
     }
-  };
+  });
+
+  const articles = newsArticles.map(article => ({
+    ...article,
+    isSaved: savedArticles?.includes(article.id)
+  }));
 
   return (
     <SidebarProvider>
@@ -106,136 +88,30 @@ const News = () => {
                 <TabsTrigger value="crypto">Crypto</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="all" className="space-y-4">
-                {newsArticles.map((article) => (
-                  <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
-                        <p className="text-sm text-gray-400 mb-2">
-                          {article.source} • {article.date} • {article.category}
-                        </p>
-                        <p className="text-gray-300">{article.summary}</p>
-                      </div>
-                      <button 
-                        className={`p-2 hover:bg-purple-700/20 rounded-full ${
-                          savedArticles.includes(article.id) ? 'text-purple-400' : ''
-                        }`}
-                        onClick={() => handleSaveArticle(article.id)}
-                      >
-                        <Bookmark className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </Card>
-                ))}
+              <TabsContent value="all">
+                <NewsTabContent articles={articles} />
               </TabsContent>
 
-              <TabsContent value="saved" className="space-y-4">
-                {newsArticles
-                  .filter(article => savedArticles.includes(article.id))
-                  .map((article) => (
-                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
-                          <p className="text-sm text-gray-400 mb-2">
-                            {article.source} • {article.date} • {article.category}
-                          </p>
-                          <p className="text-gray-300">{article.summary}</p>
-                        </div>
-                        <button 
-                          className="p-2 hover:bg-purple-700/20 rounded-full text-purple-400"
-                          onClick={() => handleSaveArticle(article.id)}
-                        >
-                          <Bookmark className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </Card>
-                  ))}
+              <TabsContent value="saved">
+                <NewsTabContent 
+                  articles={articles.filter(article => article.isSaved)} 
+                />
               </TabsContent>
 
-              <TabsContent value="technology" className="space-y-4">
-                {newsArticles
-                  .filter((article) => article.category === "Technology")
-                  .map((article) => (
-                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
-                          <p className="text-sm text-gray-400 mb-2">
-                            {article.source} • {article.date} • {article.category}
-                          </p>
-                          <p className="text-gray-300">{article.summary}</p>
-                        </div>
-                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
-                          <Bookmark className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </Card>
-                  ))}
+              <TabsContent value="technology">
+                <NewsTabContent articles={articles} category="Technology" />
               </TabsContent>
 
-              <TabsContent value="economy" className="space-y-4">
-                {newsArticles
-                  .filter((article) => article.category === "Economy")
-                  .map((article) => (
-                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
-                          <p className="text-sm text-gray-400 mb-2">
-                            {article.source} • {article.date} • {article.category}
-                          </p>
-                          <p className="text-gray-300">{article.summary}</p>
-                        </div>
-                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
-                          <Bookmark className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </Card>
-                  ))}
+              <TabsContent value="economy">
+                <NewsTabContent articles={articles} category="Economy" />
               </TabsContent>
 
-              <TabsContent value="esg" className="space-y-4">
-                {newsArticles
-                  .filter((article) => article.category === "ESG")
-                  .map((article) => (
-                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
-                          <p className="text-sm text-gray-400 mb-2">
-                            {article.source} • {article.date} • {article.category}
-                          </p>
-                          <p className="text-gray-300">{article.summary}</p>
-                        </div>
-                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
-                          <Bookmark className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </Card>
-                  ))}
+              <TabsContent value="esg">
+                <NewsTabContent articles={articles} category="ESG" />
               </TabsContent>
 
-              <TabsContent value="crypto" className="space-y-4">
-                {newsArticles
-                  .filter((article) => article.category === "Crypto")
-                  .map((article) => (
-                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
-                          <p className="text-sm text-gray-400 mb-2">
-                            {article.source} • {article.date} • {article.category}
-                          </p>
-                          <p className="text-gray-300">{article.summary}</p>
-                        </div>
-                        <button className="p-2 hover:bg-purple-700/20 rounded-full">
-                          <Bookmark className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </Card>
-                  ))}
+              <TabsContent value="crypto">
+                <NewsTabContent articles={articles} category="Crypto" />
               </TabsContent>
             </Tabs>
           </div>

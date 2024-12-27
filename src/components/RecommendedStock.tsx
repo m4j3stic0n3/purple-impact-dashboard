@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 interface RecommendedStockProps {
@@ -85,30 +85,28 @@ export function RecommendedStock({
           </div>
         )}
         <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h3 className="text-lg font-semibold text-white">{name}</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleWatchlist}
-                className={`${isInWatchlist ? 'bg-red-500/10 hover:bg-red-500/20' : 'bg-green-500/10 hover:bg-green-500/20'}`}
-              >
-                {isInWatchlist ? (
-                  <><Minus className="w-4 h-4 mr-1" /> Remove</>
-                ) : (
-                  <><Plus className="w-4 h-4 mr-1" /> Add to Watchlist</>
-                )}
-              </Button>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">{name}</h3>
             <div className="text-right">
               <p className="text-lg font-semibold text-white">{price}</p>
               <p className={`text-sm ${isPositive ? "text-green-500" : "text-[#ea384c]"}`}>
-                {change} ({changePercent})
+                {change}
               </p>
             </div>
           </div>
-          <p className="mt-2 text-sm text-gray-400">{description}</p>
+          <p className="text-sm text-gray-400 mb-4">{description}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleWatchlist}
+            className={`w-full ${isInWatchlist ? 'bg-red-500/10 hover:bg-red-500/20' : 'bg-green-500/10 hover:bg-green-500/20'}`}
+          >
+            {isInWatchlist ? (
+              <><Minus className="w-4 h-4 mr-1" /> Remove from Watchlist</>
+            ) : (
+              <><Plus className="w-4 h-4 mr-1" /> Add to Watchlist</>
+            )}
+          </Button>
         </div>
       </div>
     </Card>

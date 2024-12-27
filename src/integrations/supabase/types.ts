@@ -84,6 +84,27 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_articles: {
+        Row: {
+          article_id: number
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          article_id: number
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          article_id?: number
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           created_at: string

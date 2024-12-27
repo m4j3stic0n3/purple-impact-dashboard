@@ -3,7 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Bookmark } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { GeminiChat } from "@/components/GeminiChat";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 const newsArticles = [
   {
@@ -49,6 +51,43 @@ const newsArticles = [
 ];
 
 const News = () => {
+  const [savedArticles, setSavedArticles] = useState<number[]>([]);
+
+  const handleSaveArticle = async (articleId: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please sign in to save articles",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (savedArticles.includes(articleId)) {
+        setSavedArticles(savedArticles.filter(id => id !== articleId));
+        toast({
+          title: "Success",
+          description: "Article removed from saved articles",
+        });
+      } else {
+        setSavedArticles([...savedArticles, articleId]);
+        toast({
+          title: "Success",
+          description: "Article saved successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save article",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-dashboard-background text-white">
@@ -60,6 +99,7 @@ const News = () => {
             <Tabs defaultValue="all" className="mb-8">
               <TabsList>
                 <TabsTrigger value="all">All News</TabsTrigger>
+                <TabsTrigger value="saved">Saved Articles</TabsTrigger>
                 <TabsTrigger value="technology">Technology</TabsTrigger>
                 <TabsTrigger value="economy">Economy</TabsTrigger>
                 <TabsTrigger value="esg">ESG</TabsTrigger>
@@ -77,12 +117,41 @@ const News = () => {
                         </p>
                         <p className="text-gray-300">{article.summary}</p>
                       </div>
-                      <button className="p-2 hover:bg-purple-700/20 rounded-full">
+                      <button 
+                        className={`p-2 hover:bg-purple-700/20 rounded-full ${
+                          savedArticles.includes(article.id) ? 'text-purple-400' : ''
+                        }`}
+                        onClick={() => handleSaveArticle(article.id)}
+                      >
                         <Bookmark className="w-5 h-5" />
                       </button>
                     </div>
                   </Card>
                 ))}
+              </TabsContent>
+
+              <TabsContent value="saved" className="space-y-4">
+                {newsArticles
+                  .filter(article => savedArticles.includes(article.id))
+                  .map((article) => (
+                    <Card key={article.id} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
+                          <p className="text-sm text-gray-400 mb-2">
+                            {article.source} • {article.date} • {article.category}
+                          </p>
+                          <p className="text-gray-300">{article.summary}</p>
+                        </div>
+                        <button 
+                          className="p-2 hover:bg-purple-700/20 rounded-full text-purple-400"
+                          onClick={() => handleSaveArticle(article.id)}
+                        >
+                          <Bookmark className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </Card>
+                  ))}
               </TabsContent>
 
               <TabsContent value="technology" className="space-y-4">
@@ -169,10 +238,6 @@ const News = () => {
                   ))}
               </TabsContent>
             </Tabs>
-
-            <div className="mt-8">
-              <GeminiChat />
-            </div>
           </div>
         </main>
       </div>

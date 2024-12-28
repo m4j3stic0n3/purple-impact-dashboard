@@ -49,7 +49,7 @@ export const StockPrice: React.FC<StockPriceProps> = ({ symbol }) => {
         )}
       </div>
       <p className="text-2xl">${data.price.toFixed(2)}</p>
-      <p className={`text-sm ${data.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+      <p className={`text-sm ${data.change >= 0 ? 'text-green-500' : 'text-[#ea384c]'}`}>
         {data.change >= 0 ? '+' : ''}{data.change.toFixed(2)} 
         ({data.changePercent.toFixed(2)}%)
       </p>

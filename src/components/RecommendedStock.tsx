@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface RecommendedStockProps {
   name: string;
@@ -27,7 +27,25 @@ export function RecommendedStock({
   isWatchlisted = false,
 }: RecommendedStockProps) {
   const [isInWatchlist, setIsInWatchlist] = useState(isWatchlisted);
-  const isPositive = !change.startsWith("-");
+  const isPositive = !change.includes('-');
+
+  useEffect(() => {
+    const checkWatchlist = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('watchlist')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('symbol', symbol)
+          .single();
+        
+        setIsInWatchlist(!!data);
+      }
+    };
+    
+    checkWatchlist();
+  }, [symbol]);
 
   const handleWatchlist = async () => {
     try {
@@ -107,7 +125,7 @@ export function RecommendedStock({
             <div className="text-right">
               <p className="text-lg font-semibold text-white">{price}</p>
               <p className={`text-sm ${isPositive ? "text-green-500" : "text-[#ea384c]"}`}>
-                {change}
+                {change} ({changePercent})
               </p>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getStockQuote } from "@/services/polygonService";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import { 
   LineChart, 
   Line, 
@@ -18,7 +19,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { PortfolioComposition } from "@/components/PortfolioComposition";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const PORTFOLIO_VALUE = 87649.51;
 
@@ -30,9 +31,8 @@ const portfolioData = [
 ];
 
 const generatePerformanceData = () => {
-  // Simulate daily fluctuations based on the actual portfolio value
   return Array.from({ length: 30 }, (_, i) => {
-    const randomFluctuation = (Math.random() - 0.5) * 0.02; // ±1% daily change
+    const randomFluctuation = (Math.random() - 0.5) * 0.02;
     const value = PORTFOLIO_VALUE * (1 + randomFluctuation);
     return {
       name: `Day ${i + 1}`,
@@ -43,43 +43,84 @@ const generatePerformanceData = () => {
 
 const Index = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [watchlistItems, setWatchlistItems] = useState([]);
+  const [user, setUser] = useState(null);
 
-  // Fetch watchlist items
-  const { data: watchlistData } = useQuery({
-    queryKey: ['watchlist'],
+  // Check authentication status
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) {
+        navigate('/login');
+        return;
+      }
+      setUser(currentUser);
+    };
+
+    checkUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) {
+        navigate('/login');
+        return;
+      }
+      setUser(session.user);
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [navigate]);
+
+  // Fetch watchlist items only if user is authenticated
+  const { data: watchlistData, isLoading: watchlistLoading } = useQuery({
+    queryKey: ['watchlist', user?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      
       const { data, error } = await supabase
         .from('watchlist')
         .select('*')
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch watchlist",
+          variant: "destructive",
+        });
+        return [];
+      }
+      
       return data || [];
     },
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   // Delete watchlist item mutation
   const deleteWatchlistItem = useMutation({
     mutationFn: async (symbol: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+      
       const { error } = await supabase
         .from('watchlist')
         .delete()
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .eq('symbol', symbol);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['watchlist'] });
+      queryClient.invalidateQueries({ queryKey: ['watchlist', user?.id] });
       toast({
         title: "Success",
         description: "Stock removed from watchlist",
       });
     },
     onError: (error) => {
+      console.error('Error removing from watchlist:', error);
       toast({
         title: "Error",
         description: "Failed to remove stock from watchlist",
@@ -125,6 +166,8 @@ const Index = () => {
     return `${sign}$${change.toFixed(2)} (${sign}${changePercent.toFixed(2)}%)`;
   };
 
+  if (!user) return null; // Don't render anything while checking authentication
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-dashboard-background text-white">
@@ -151,46 +194,52 @@ const Index = () => {
             </div>
 
             <h2 className="text-xl font-semibold mt-8 mb-4">Watchlist:</h2>
-            <div className="grid gap-4 mb-8">
-              {watchlistQueries.map((stock) => (
-                <Card 
-                  key={stock.symbol} 
-                  className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800 group relative"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Star className="w-5 h-5 text-yellow-400" />
-                      <div>
-                        <h4 className="font-semibold">{stock.symbol}</h4>
+            {watchlistLoading ? (
+              <div>Loading watchlist...</div>
+            ) : watchlistQueries.length === 0 ? (
+              <div className="text-gray-400">No stocks in watchlist</div>
+            ) : (
+              <div className="grid gap-4 mb-8">
+                {watchlistQueries.map((stock) => (
+                  <Card 
+                    key={stock.symbol} 
+                    className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800 group relative"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-400" />
+                        <div>
+                          <h4 className="font-semibold">{stock.symbol}</h4>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {stock.isLoading ? (
+                          <div>Loading...</div>
+                        ) : stock.error ? (
+                          <div>Error loading price</div>
+                        ) : (
+                          <div className="text-right">
+                            <p className="text-lg font-semibold">
+                              ${stock.data?.price.toFixed(2)}
+                            </p>
+                            <p className={`text-sm ${stock.data?.change >= 0 ? 'text-success' : 'text-red-500'}`}>
+                              {stock.data?.change >= 0 ? '+' : ''}{stock.data?.change.toFixed(2)} 
+                              ({stock.data?.changePercent.toFixed(2)}%)
+                            </p>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => deleteWatchlistItem.mutate(stock.symbol)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-red-500/10 rounded-full"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      {stock.isLoading ? (
-                        <div>Loading...</div>
-                      ) : stock.error ? (
-                        <div>Error loading price</div>
-                      ) : (
-                        <div className="text-right">
-                          <p className="text-lg font-semibold">
-                            ${stock.data?.price.toFixed(2)}
-                          </p>
-                          <p className={`text-sm ${stock.data?.change >= 0 ? 'text-success' : 'text-red-500'}`}>
-                            {stock.data?.change >= 0 ? '+' : ''}{stock.data?.change.toFixed(2)} 
-                            ({stock.data?.changePercent.toFixed(2)}%)
-                          </p>
-                        </div>
-                      )}
-                      <button
-                        onClick={() => deleteWatchlistItem.mutate(stock.symbol)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-red-500/10 rounded-full"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )}
 
             <h2 className="text-xl font-semibold mt-8 mb-4">Recommended Stocks:</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

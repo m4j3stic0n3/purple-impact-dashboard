@@ -27,20 +27,38 @@ export function RecommendedStock({
   isWatchlisted = false,
 }: RecommendedStockProps) {
   const [isInWatchlist, setIsInWatchlist] = useState(isWatchlisted);
+  const [isLoading, setIsLoading] = useState(true);
   const isPositive = !change.includes('-');
 
   useEffect(() => {
     const checkWatchlist = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
+      try {
+        setIsLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
           .from('watchlist')
           .select('*')
           .eq('user_id', user.id)
           .eq('symbol', symbol)
-          .single();
+          .maybeSingle();
         
+        if (error) throw error;
         setIsInWatchlist(!!data);
+      } catch (error) {
+        console.error('Error checking watchlist:', error);
+        toast({
+          title: "Error",
+          description: "Failed to check watchlist status",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -67,8 +85,7 @@ export function RecommendedStock({
           .from('watchlist')
           .delete()
           .eq('user_id', user.id)
-          .eq('symbol', symbol)
-          .single();
+          .eq('symbol', symbol);
 
         if (error) throw error;
         
@@ -80,8 +97,7 @@ export function RecommendedStock({
       } else {
         const { error } = await supabase
           .from('watchlist')
-          .insert([{ user_id: user.id, symbol }])
-          .single();
+          .insert([{ user_id: user.id, symbol }]);
 
         if (error) {
           // Check if it's a unique constraint violation
@@ -134,6 +150,7 @@ export function RecommendedStock({
             variant="outline"
             size="sm"
             onClick={handleWatchlist}
+            disabled={isLoading}
             className={`w-full ${isInWatchlist ? 'bg-red-500/10 hover:bg-red-500/20' : 'bg-green-500/10 hover:bg-green-500/20'}`}
           >
             {isInWatchlist ? (

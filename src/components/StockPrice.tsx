@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStockQuote } from '../services/polygonService';
+import { getStockQuote } from '../services/alpacaService';
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, Clock } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -12,16 +12,16 @@ export const StockPrice: React.FC<StockPriceProps> = ({ symbol }) => {
   const { data, isLoading, error, isFetching } = useQuery({
     queryKey: ['stockPrice', symbol],
     queryFn: () => getStockQuote(symbol),
-    refetchInterval: 60000, // Fetch every minute due to rate limiting
-    retry: 1, // Only retry once due to rate limiting
-    staleTime: 30000 // Consider data fresh for 30 seconds
+    refetchInterval: 10000, // Fetch every 10 seconds for real-time data
+    retry: 2,
+    staleTime: 5000 // Consider data fresh for 5 seconds
   });
 
   if (isLoading) {
     return (
       <div className="flex items-center space-x-2 text-muted-foreground">
         <Clock className="h-4 w-4 animate-spin" />
-        <span>Queued...</span>
+        <span>Loading...</span>
       </div>
     );
   }
@@ -49,7 +49,11 @@ export const StockPrice: React.FC<StockPriceProps> = ({ symbol }) => {
         )}
       </div>
       <p className="text-2xl">${data.price.toFixed(2)}</p>
-      <p className="text-sm text-gray-500">End of day data</p>
+      <p className={`text-sm ${data.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {data.change >= 0 ? '+' : ''}{data.change.toFixed(2)} 
+        ({data.changePercent.toFixed(2)}%)
+      </p>
+      <p className="text-sm text-gray-500">Real-time data</p>
     </div>
   );
 };

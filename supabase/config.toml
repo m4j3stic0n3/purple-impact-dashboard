@@ -1,1 +1,7 @@
 project_id = "zvykjqfadwvtdroibuas"
+
+[functions.get-alpaca-key]
+verify_jwt = false
+
+[functions.get-alpaca-secret]
+verify_jwt = false

@@ -31,16 +31,29 @@ export function RecommendedStock({
 
   const handleWatchlist = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
+      if (userError) throw userError;
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please sign in to use the watchlist feature",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (isInWatchlist) {
         const { error } = await supabase
           .from('watchlist')
           .delete()
-          .eq('user_id', user?.id)
-          .eq('symbol', symbol);
+          .eq('user_id', user.id)
+          .eq('symbol', symbol)
+          .single();
 
         if (error) throw error;
+        
         setIsInWatchlist(false);
         toast({
           title: "Success",
@@ -49,9 +62,21 @@ export function RecommendedStock({
       } else {
         const { error } = await supabase
           .from('watchlist')
-          .insert([{ user_id: user?.id, symbol }]);
+          .insert([{ user_id: user.id, symbol }])
+          .single();
 
-        if (error) throw error;
+        if (error) {
+          // Check if it's a unique constraint violation
+          if (error.code === '23505') {
+            toast({
+              title: "Info",
+              description: `${symbol} is already in your watchlist`,
+            });
+            return;
+          }
+          throw error;
+        }
+        
         setIsInWatchlist(true);
         toast({
           title: "Success",

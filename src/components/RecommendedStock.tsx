@@ -125,7 +125,7 @@ export function RecommendedStock({
             <div className="text-right">
               <p className="text-lg font-semibold text-white">{price}</p>
               <p className={`text-sm ${isPositive ? "text-green-500" : "text-[#ea384c]"}`}>
-                {change} ({changePercent})
+                {change} {changePercent}
               </p>
             </div>
           </div>

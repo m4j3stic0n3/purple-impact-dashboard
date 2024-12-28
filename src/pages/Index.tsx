@@ -1,11 +1,13 @@
-import { Calendar, Target, Star } from "lucide-react";
+import { Calendar, Target, Star, Trash2 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { RecommendedStock } from "@/components/RecommendedStock";
 import { Card } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getStockQuote } from "@/services/polygonService";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import { 
   LineChart, 
   Line, 
@@ -16,6 +18,9 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { PortfolioComposition } from "@/components/PortfolioComposition";
+import { useState } from "react";
+
+const PORTFOLIO_VALUE = 87649.51;
 
 const portfolioData = [
   { name: 'Stocks', value: 400 },
@@ -25,24 +30,69 @@ const portfolioData = [
 ];
 
 const generatePerformanceData = () => {
-  return Array.from({ length: 30 }, (_, i) => ({
-    name: `Day ${i + 1}`,
-    value: Math.round(10000 + Math.random() * 5000)
-  }));
+  // Simulate daily fluctuations based on the actual portfolio value
+  return Array.from({ length: 30 }, (_, i) => {
+    const randomFluctuation = (Math.random() - 0.5) * 0.02; // ±1% daily change
+    const value = PORTFOLIO_VALUE * (1 + randomFluctuation);
+    return {
+      name: `Day ${i + 1}`,
+      value: Math.round(value)
+    };
+  });
 };
 
-const watchlistStocks = [
-  { symbol: 'TSLA', name: 'Tesla, Inc.' },
-  { symbol: 'AAPL', name: 'Apple Inc.' },
-  { symbol: 'NVDA', name: 'NVIDIA Corporation' },
-];
-
 const Index = () => {
+  const queryClient = useQueryClient();
+  const [watchlistItems, setWatchlistItems] = useState([]);
+
+  // Fetch watchlist items
+  const { data: watchlistData } = useQuery({
+    queryKey: ['watchlist'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from('watchlist')
+        .select('*')
+        .eq('user_id', user?.id);
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Delete watchlist item mutation
+  const deleteWatchlistItem = useMutation({
+    mutationFn: async (symbol: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error } = await supabase
+        .from('watchlist')
+        .delete()
+        .eq('user_id', user?.id)
+        .eq('symbol', symbol);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchlist'] });
+      toast({
+        title: "Success",
+        description: "Stock removed from watchlist",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to remove stock from watchlist",
+        variant: "destructive",
+      });
+    },
+  });
+
   const { data: llyData } = useQuery({
     queryKey: ['stock', 'LLY'],
     queryFn: () => getStockQuote('LLY'),
-    refetchInterval: 120000, // Increased to 2 minutes
-    staleTime: 60000, // Consider data fresh for 1 minute
+    refetchInterval: 120000,
+    staleTime: 60000,
   });
 
   const { data: pltrData } = useQuery({
@@ -51,6 +101,17 @@ const Index = () => {
     refetchInterval: 120000,
     staleTime: 60000,
   });
+
+  // Fetch data for watchlist stocks
+  const watchlistQueries = watchlistData?.map(item => ({
+    ...item,
+    ...useQuery({
+      queryKey: ['stock', item.symbol],
+      queryFn: () => getStockQuote(item.symbol),
+      refetchInterval: 120000,
+      staleTime: 60000,
+    })
+  })) || [];
 
   const performanceData = generatePerformanceData();
 
@@ -63,17 +124,6 @@ const Index = () => {
     const sign = change >= 0 ? '+' : '';
     return `${sign}$${change.toFixed(2)} (${sign}${changePercent.toFixed(2)}%)`;
   };
-
-  // Add queries for watchlist stocks with increased intervals
-  const watchlistQueries = watchlistStocks.map(stock => ({
-    ...stock,
-    ...useQuery({
-      queryKey: ['stock', stock.symbol],
-      queryFn: () => getStockQuote(stock.symbol),
-      refetchInterval: 120000,
-      staleTime: 60000,
-    })
-  }));
 
   return (
     <SidebarProvider>
@@ -94,7 +144,7 @@ const Index = () => {
               />
               <MetricCard
                 title="Portfolio Value"
-                value="$87,649.51"
+                value={`$${PORTFOLIO_VALUE.toLocaleString()}`}
                 subtitle="0.12% (+$105.18)"
                 className="text-success"
               />
@@ -103,30 +153,40 @@ const Index = () => {
             <h2 className="text-xl font-semibold mt-8 mb-4">Watchlist:</h2>
             <div className="grid gap-4 mb-8">
               {watchlistQueries.map((stock) => (
-                <Card key={stock.symbol} className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800">
+                <Card 
+                  key={stock.symbol} 
+                  className="p-4 bg-dashboard-card/60 backdrop-blur-lg border-purple-800 group relative"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Star className="w-5 h-5 text-yellow-400" />
                       <div>
-                        <h4 className="font-semibold">{stock.name}</h4>
-                        <span className="text-sm text-gray-400">{stock.symbol}</span>
+                        <h4 className="font-semibold">{stock.symbol}</h4>
                       </div>
                     </div>
-                    {stock.isLoading ? (
-                      <div>Loading...</div>
-                    ) : stock.error ? (
-                      <div>Error loading price</div>
-                    ) : (
-                      <div className="text-right">
-                        <p className="text-lg font-semibold">
-                          ${stock.data?.price.toFixed(2)}
-                        </p>
-                        <p className={`text-sm ${stock.data?.change >= 0 ? 'text-success' : 'text-red-500'}`}>
-                          {stock.data?.change >= 0 ? '+' : ''}{stock.data?.change.toFixed(2)} 
-                          ({stock.data?.changePercent.toFixed(2)}%)
-                        </p>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-4">
+                      {stock.isLoading ? (
+                        <div>Loading...</div>
+                      ) : stock.error ? (
+                        <div>Error loading price</div>
+                      ) : (
+                        <div className="text-right">
+                          <p className="text-lg font-semibold">
+                            ${stock.data?.price.toFixed(2)}
+                          </p>
+                          <p className={`text-sm ${stock.data?.change >= 0 ? 'text-success' : 'text-red-500'}`}>
+                            {stock.data?.change >= 0 ? '+' : ''}{stock.data?.change.toFixed(2)} 
+                            ({stock.data?.changePercent.toFixed(2)}%)
+                          </p>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => deleteWatchlistItem.mutate(stock.symbol)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-red-500/10 rounded-full"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
+                    </div>
                   </div>
                 </Card>
               ))}

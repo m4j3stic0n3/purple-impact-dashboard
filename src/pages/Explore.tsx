@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Filter, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { GeminiChat } from "@/components/GeminiChat";
 
 const sampleOpportunities = [
   {
@@ -46,9 +47,9 @@ const Explore = () => {
   return (
     <div className="min-h-screen flex w-full bg-[#1A1F2C] text-white">
       <DashboardSidebar />
-      <main className="flex-1 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
+      <main className="flex-1 p-8 overflow-y-auto">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Explore Opportunities</h1>
             <div className="flex gap-4">
               <div className="relative">
@@ -65,32 +66,39 @@ const Explore = () => {
             </div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sampleOpportunities.map((opportunity) => (
-              <Card key={opportunity.id} className="overflow-hidden bg-[#2A2F3C]/60 backdrop-blur-lg border-purple-800">
-                <img 
-                  src={opportunity.image} 
-                  alt={opportunity.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">{opportunity.title}</h3>
-                  <p className="text-purple-400 text-sm mb-4">{opportunity.impact}</p>
-                  <div className="space-y-2 text-sm text-gray-400">
-                    <p>📍 {opportunity.location}</p>
-                    <p>💰 Min. Investment: ${opportunity.minInvestment.toLocaleString()}</p>
-                    <p>📈 Expected Return: {opportunity.expectedReturn}</p>
-                  </div>
-                  <Button 
-                    className="w-full mt-4 bg-purple-700 hover:bg-purple-600"
-                    onClick={() => handleLearnMore(opportunity.id)}
-                  >
-                    Learn More
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            ))}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <div className="grid md:grid-cols-2 gap-6">
+                {sampleOpportunities.map((opportunity) => (
+                  <Card key={opportunity.id} className="overflow-hidden bg-[#2A2F3C]/60 backdrop-blur-lg border-purple-800">
+                    <img 
+                      src={opportunity.image} 
+                      alt={opportunity.title}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold mb-2">{opportunity.title}</h3>
+                      <p className="text-purple-400 text-sm mb-4">{opportunity.impact}</p>
+                      <div className="space-y-2 text-sm text-gray-400">
+                        <p>📍 {opportunity.location}</p>
+                        <p>💰 Min. Investment: ${opportunity.minInvestment.toLocaleString()}</p>
+                        <p>📈 Expected Return: {opportunity.expectedReturn}</p>
+                      </div>
+                      <Button 
+                        className="w-full mt-4 bg-purple-700 hover:bg-purple-600"
+                        onClick={() => handleLearnMore(opportunity.id)}
+                      >
+                        Learn More
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            <div className="md:col-span-1">
+              <GeminiChat />
+            </div>
           </div>
         </div>
       </main>

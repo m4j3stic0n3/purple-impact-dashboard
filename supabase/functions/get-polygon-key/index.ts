@@ -25,6 +25,7 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Error in get-polygon-key function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

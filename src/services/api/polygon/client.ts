@@ -5,8 +5,14 @@ export async function makePolygonRequest(endpoint: string) {
     // Ensure the endpoint starts with a slash
     const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     
-    // Construct the full URL properly
+    // Get API key from environment
+    const apiKey = process.env.POLYGON_API_KEY;
+    
+    // Construct the full URL properly with API key
     const url = new URL(formattedEndpoint, POLYGON_API_BASE);
+    url.searchParams.append('apiKey', apiKey || '');
+    
+    console.log('Making request to:', url.toString());
     
     const response = await fetch(url.toString());
     

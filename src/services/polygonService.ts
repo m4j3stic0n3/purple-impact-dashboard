@@ -10,9 +10,7 @@ export async function getStockQuote(symbol: string): Promise<PolygonQuoteRespons
       
       const data = await makePolygonRequest(`/v2/aggs/ticker/${symbol}/prev`);
       
-      rateLimiter.trackApiCall();
-      
-      if (!data.results?.[0]) {
+      if (!data?.results?.[0]) {
         console.log(`No data available for ${symbol}, using mock data`);
         return mockStockData[symbol] || {
           price: 0,
@@ -23,12 +21,16 @@ export async function getStockQuote(symbol: string): Promise<PolygonQuoteRespons
       }
 
       const result = data.results[0];
-      return {
+      const quote = {
         price: result.c,
         change: result.c - result.o,
         changePercent: ((result.c - result.o) / result.o) * 100,
         timestamp: result.t
       };
+
+      rateLimiter.trackApiCall();
+      return quote;
+      
     } catch (error) {
       console.error(`Error fetching ${symbol}:`, error);
       console.log(`Falling back to mock data for ${symbol}`);

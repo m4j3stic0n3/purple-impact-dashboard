@@ -1,71 +1,50 @@
-const CALLS_PER_MINUTE = 2; // Reduced from 5 to be more conservative
-const COOLDOWN_MS = 30000; // Increased cooldown between calls to 30 seconds
+interface RateLimiter {
+  callsQueue: number[];
+  requestQueue: (() => Promise<any>)[];
+  isProcessingQueue: boolean;
+}
 
-export class RateLimiter {
-  private callsQueue: number[] = [];
-  private requestQueue: (() => Promise<any>)[] = [];
-  private isProcessingQueue: boolean = false;
-  private lastCallTime: number = 0;
+class ApiRateLimiter implements RateLimiter {
+  callsQueue: number[] = [];
+  requestQueue: (() => Promise<any>)[] = [];
+  isProcessingQueue: boolean = false;
+  
+  private readonly RATE_LIMIT = 5; // Maximum calls per minute
+  private readonly WINDOW_MS = 60000; // 1 minute window
+  private readonly COOLDOWN_MS = 30000; // 30 seconds cooldown if rate limit is hit
 
-  private canMakeCall(): boolean {
-    const now = Date.now();
-    
-    // Remove calls older than 1 minute from the queue
-    while (this.callsQueue.length > 0 && this.callsQueue[0] < now - 60000) {
-      this.callsQueue.shift();
-    }
-
-    // Ensure minimum time between calls
-    if (now - this.lastCallTime < COOLDOWN_MS) {
-      console.log(`Waiting for cooldown... ${((COOLDOWN_MS - (now - this.lastCallTime)) / 1000).toFixed(1)}s remaining`);
-      return false;
-    }
-
-    return this.callsQueue.length < CALLS_PER_MINUTE;
-  }
-
-  public trackApiCall(): void {
+  trackApiCall() {
     const now = Date.now();
     this.callsQueue.push(now);
-    this.lastCallTime = now;
-    console.log(`API call tracked. Calls in last minute: ${this.callsQueue.length}`);
+    
+    // Remove calls older than the window
+    this.callsQueue = this.callsQueue.filter(time => now - time < this.WINDOW_MS);
   }
 
-  public async enqueueRequest(request: () => Promise<any>): Promise<any> {
-    return new Promise((resolve) => {
-      const wrappedRequest = async () => {
+  async enqueueRequest<T>(request: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const executeRequest = async () => {
+        const now = Date.now();
+        this.callsQueue = this.callsQueue.filter(time => now - time < this.WINDOW_MS);
+
+        if (this.callsQueue.length >= this.RATE_LIMIT) {
+          const oldestCall = this.callsQueue[0];
+          const waitTime = (oldestCall + this.WINDOW_MS) - now;
+          console.info(`Waiting for cooldown... ${(waitTime / 1000).toFixed(1)}s remaining`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+
         try {
           const result = await request();
           resolve(result);
         } catch (error) {
-          console.error('Error processing request:', error);
-          resolve(undefined);
+          reject(error);
         }
       };
 
-      this.requestQueue.push(wrappedRequest);
-      this.processQueue();
+      executeRequest();
     });
-  }
-
-  private async processQueue(): Promise<void> {
-    if (this.isProcessingQueue) return;
-    this.isProcessingQueue = true;
-
-    while (this.requestQueue.length > 0) {
-      if (!this.canMakeCall()) {
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Check every 5 seconds
-        continue;
-      }
-
-      const request = this.requestQueue.shift();
-      if (request) {
-        await request();
-      }
-    }
-
-    this.isProcessingQueue = false;
   }
 }
 
-export const rateLimiter = new RateLimiter();
+export const rateLimiter = new ApiRateLimiter();

@@ -8,11 +8,15 @@ export async function getStockQuote(symbol: string): Promise<PolygonQuoteRespons
     try {
       console.log(`Fetching stock quote for ${symbol}...`);
       
-      const data = await makePolygonRequest(`/v2/aggs/ticker/${symbol}/prev`);
+      // Ensure the symbol is properly formatted
+      const formattedSymbol = symbol.trim().toUpperCase();
+      
+      // Make the API request with proper error handling
+      const data = await makePolygonRequest(`/v2/aggs/ticker/${formattedSymbol}/prev`);
       
       if (!data?.results?.[0]) {
         console.log(`No data available for ${symbol}, using mock data`);
-        return mockStockData[symbol] || {
+        return mockStockData[formattedSymbol] || {
           price: 0,
           change: 0,
           changePercent: 0,
@@ -34,12 +38,16 @@ export async function getStockQuote(symbol: string): Promise<PolygonQuoteRespons
     } catch (error) {
       console.error(`Error fetching ${symbol}:`, error);
       console.log(`Falling back to mock data for ${symbol}`);
-      return mockStockData[symbol] || {
+      
+      // Ensure we have a fallback for the symbol
+      const fallbackData = mockStockData[symbol] || {
         price: 0,
         change: 0,
         changePercent: 0,
         timestamp: Date.now()
       };
+      
+      return fallbackData;
     }
   });
 }

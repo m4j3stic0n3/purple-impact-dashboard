@@ -7,10 +7,9 @@ import { DollarSign } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getStockQuote } from "@/services/polygonService";
+import { getStockQuote } from "@/services/stockService";
 import { GeminiChat } from "@/components/GeminiChat";
 
-// Real ETF tickers with descriptions
 const portfolioETFs = [
   { 
     name: 'iShares Global Clean Energy ETF',

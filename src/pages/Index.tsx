@@ -2,7 +2,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { RecommendedStock } from "@/components/RecommendedStock";
 import { useQuery } from "@tanstack/react-query";
-import { getStockQuote } from "@/services/polygonService";
+import { getStockQuote } from "@/services/stockService";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { PortfolioComposition } from "@/components/PortfolioComposition";

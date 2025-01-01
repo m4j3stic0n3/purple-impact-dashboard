@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStockQuote } from '../services/alpacaService';
+import { getStockQuote } from '../services/stockService';
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, Clock } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";

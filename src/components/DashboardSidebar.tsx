@@ -34,13 +34,18 @@ export function DashboardSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.href;
+                const isHome = item.href === "/";
                 return (
                   <SidebarMenuItem key={item.label}>
                     <SidebarMenuButton asChild>
                       <a
                         href={item.href}
                         className={`flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white rounded-lg transition-colors ${
-                          isActive ? 'bg-purple-500/20 text-white' : 'hover:bg-dashboard-highlight/10'
+                          isActive 
+                            ? isHome 
+                              ? 'bg-success/20 text-success' 
+                              : 'bg-purple-500/20 text-white'
+                            : 'hover:bg-dashboard-highlight/10'
                         }`}
                       >
                         <item.icon className="w-5 h-5" />

@@ -63,8 +63,8 @@ const Index = () => {
   const { data: llyData, error: llyError } = useQuery({
     queryKey: ['stock', 'LLY'],
     queryFn: () => getStockQuote('LLY'),
-    refetchInterval: 120000, // 2 minutes
-    staleTime: 60000, // 1 minute
+    refetchInterval: 120000,
+    staleTime: 60000,
     retry: 1,
     meta: {
       errorMessage: 'Failed to fetch LLY stock data'
@@ -104,42 +104,44 @@ const Index = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex bg-dashboard-background text-white">
-      <DashboardSidebar />
-      <main className="flex-1 p-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <DashboardMetrics />
-          <WatchlistSection user={user} />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-dashboard-background">
+        <DashboardSidebar />
+        <main className="flex-1 p-8 overflow-y-auto">
+          <div className="max-w-7xl mx-auto space-y-6">
+            <DashboardMetrics />
+            <WatchlistSection user={user} />
 
-          <h2 className="text-xl font-semibold mt-8 mb-4">Recommended Stocks:</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RecommendedStock
-              name="Eli Lilly & Co"
-              symbol="LLY"
-              price={formatPrice(getStockData('LLY', llyData, llyError))}
-              change={formatChange(getStockData('LLY', llyData, llyError))}
-              changePercent={getStockData('LLY', llyData, llyError)?.changePercent ? 
-                `${getStockData('LLY', llyData, llyError).changePercent.toFixed(2)}%` : '0.00%'}
-              description="Eli Lilly has been a fantastic growth stock to own in recent years. Entering trading this week, its five-year returns have totaled more than 550%."
-            />
-            <RecommendedStock
-              name="Palantir"
-              symbol="PLTR"
-              price={formatPrice(getStockData('PLTR', pltrData, pltrError))}
-              change={formatChange(getStockData('PLTR', pltrData, pltrError))}
-              changePercent={getStockData('PLTR', pltrData, pltrError)?.changePercent ? 
-                `${getStockData('PLTR', pltrData, pltrError).changePercent.toFixed(2)}%` : '0.00%'}
-              description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million and adjusted earnings of $0.10 per share."
-            />
-          </div>
+            <h2 className="text-xl font-semibold mt-8 mb-4 text-white">Recommended Stocks:</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <RecommendedStock
+                name="Eli Lilly & Co"
+                symbol="LLY"
+                price={formatPrice(getStockData('LLY', llyData, llyError))}
+                change={formatChange(getStockData('LLY', llyData, llyError))}
+                changePercent={getStockData('LLY', llyData, llyError)?.changePercent ? 
+                  `${getStockData('LLY', llyData, llyError).changePercent.toFixed(2)}%` : '0.00%'}
+                description="Eli Lilly has been a fantastic growth stock to own in recent years. Entering trading this week, its five-year returns have totaled more than 550%."
+              />
+              <RecommendedStock
+                name="Palantir"
+                symbol="PLTR"
+                price={formatPrice(getStockData('PLTR', pltrData, pltrError))}
+                change={formatChange(getStockData('PLTR', pltrData, pltrError))}
+                changePercent={getStockData('PLTR', pltrData, pltrError)?.changePercent ? 
+                  `${getStockData('PLTR', pltrData, pltrError).changePercent.toFixed(2)}%` : '0.00%'}
+                description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million and adjusted earnings of $0.10 per share."
+              />
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            <PerformanceChart />
-            <PortfolioComposition data={portfolioData} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <PerformanceChart />
+              <PortfolioComposition data={portfolioData} />
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 

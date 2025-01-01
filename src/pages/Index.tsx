@@ -1,65 +1,53 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { DashboardSidebar } from "@/components/DashboardSidebar";
-import { RecommendedStock } from "@/components/RecommendedStock";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getStockQuote } from "@/services/stockService";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { PortfolioComposition } from "@/components/PortfolioComposition";
-import { useState, useEffect } from "react";
+import { useUser } from "@supabase/auth-helpers-react";
+import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { DashboardMetrics } from "@/components/DashboardMetrics";
 import { WatchlistSection } from "@/components/WatchlistSection";
+import { RecommendedStock } from "@/components/RecommendedStock";
 import { PerformanceChart } from "@/components/PerformanceChart";
+import { PortfolioComposition } from "@/components/PortfolioComposition";
+import { getStockQuote } from "@/services/stockService";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
+// Sample portfolio data for demonstration
 const portfolioData = [
-  { name: 'Stocks', value: 400 },
-  { name: 'Bonds', value: 300 },
-  { name: 'Real Estate', value: 300 },
-  { name: 'Crypto', value: 200 },
+  { name: 'Stocks', value: 45 },
+  { name: 'Bonds', value: 25 },
+  { name: 'Cash', value: 15 },
+  { name: 'Other', value: 15 }
 ];
 
-const mockStockData = {
-  LLY: {
-    price: 598.42,
-    change: 2.15,
-    changePercent: 0.36,
-  },
-  PLTR: {
-    price: 17.85,
-    change: -0.25,
-    changePercent: -1.38,
+// Helper function to format price
+const formatPrice = (data: any) => {
+  if (!data) return '$0.00';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(data.price);
+};
+
+// Helper function to format change
+const formatChange = (data: any) => {
+  if (!data) return '+$0.00';
+  const prefix = data.change >= 0 ? '+' : '';
+  return `${prefix}${data.change.toFixed(2)}`;
+};
+
+// Helper function to get stock data safely
+const getStockData = (symbol: string, data: any, error: any) => {
+  console.log(`Getting stock data for ${symbol}:`, { data, error });
+  if (error) {
+    console.error(`Error fetching ${symbol} data:`, error);
+    return null;
   }
+  return data;
 };
 
 const Index = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const user = useUser();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) {
-        navigate('/login');
-        return;
-      }
-      setUser(currentUser);
-    };
-
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) {
-        navigate('/login');
-        return;
-      }
-      setUser(session.user);
-    });
-
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [navigate]);
-
+  // Fetch LLY stock data
   const { data: llyData, error: llyError } = useQuery({
     queryKey: ['stock', 'LLY'],
     queryFn: () => getStockQuote('LLY'),
@@ -71,6 +59,7 @@ const Index = () => {
     }
   });
 
+  // Fetch PLTR stock data
   const { data: pltrData, error: pltrError } = useQuery({
     queryKey: ['stock', 'PLTR'],
     queryFn: () => getStockQuote('PLTR'),
@@ -82,26 +71,18 @@ const Index = () => {
     }
   });
 
-  const getStockData = (symbol: string, data: any, error: any) => {
-    if (error || !data) {
-      console.log(`Using mock data for ${symbol} due to error:`, error);
-      return mockStockData[symbol];
-    }
-    return data;
-  };
+  // Debug logs for component rendering and data
+  useEffect(() => {
+    console.log('Index component rendered');
+    console.log('User:', user);
+    console.log('LLY Data:', llyData);
+    console.log('PLTR Data:', pltrData);
+  }, [user, llyData, pltrData]);
 
-  const formatPrice = (data?: any) => {
-    if (!data) return '$0.00';
-    return `$${data.price.toFixed(2)}`;
-  };
-
-  const formatChange = (data?: any) => {
-    if (!data) return '+$0.00 (0.00%)';
-    const sign = data.change >= 0 ? '+' : '';
-    return `${sign}$${data.change.toFixed(2)} (${sign}${data.changePercent.toFixed(2)}%)`;
-  };
-
-  if (!user) return null;
+  if (!user) {
+    console.log('No user found, returning null');
+    return null;
+  }
 
   return (
     <SidebarProvider>

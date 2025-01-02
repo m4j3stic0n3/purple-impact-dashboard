@@ -2,9 +2,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { polygonRateLimiter } from "@/utils/rateLimiter";
 
 export async function getPolygonApiKey() {
-  const { data: { key }, error } = await supabase.functions.invoke('get-polygon-key');
+  const { data, error } = await supabase.functions.invoke('get-polygon-key');
   if (error) throw error;
-  return key;
+  return data.key;
 }
 
 export async function getStockQuoteFromPolygon(symbol: string) {
@@ -12,6 +12,7 @@ export async function getStockQuoteFromPolygon(symbol: string) {
     const apiKey = await getPolygonApiKey();
     
     return await polygonRateLimiter.enqueue(async () => {
+      console.log(`Fetching quote for ${symbol} from Polygon API`);
       const response = await fetch(
         `https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?adjusted=true&apiKey=${apiKey}`
       );

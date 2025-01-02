@@ -47,4 +47,5 @@ class RateLimiter {
   }
 }
 
-export const polygonRateLimiter = new RateLimiter(5); // 5 calls per minute
+// Initialize with 5 calls per minute
+export const polygonRateLimiter = new RateLimiter(5);

@@ -27,8 +27,8 @@ const Index = () => {
   const { data: llyData, error: llyError } = useQuery({
     queryKey: ['stock', 'LLY'],
     queryFn: () => getStockQuoteFromPolygon('LLY'),
-    refetchInterval: 60000,
-    staleTime: 30000,
+    refetchInterval: 60000, // Refetch every minute
+    staleTime: 30000, // Consider data stale after 30 seconds
     retry: 1,
     meta: {
       errorMessage: 'Failed to fetch LLY stock data'
@@ -40,7 +40,8 @@ const Index = () => {
     console.log('Index component rendered');
     console.log('User:', user);
     console.log('LLY Data:', llyData);
-  }, [user, llyData]);
+    if (llyError) console.error('LLY Error:', llyError);
+  }, [user, llyData, llyError]);
 
   return (
     <SidebarProvider>

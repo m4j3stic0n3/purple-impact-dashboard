@@ -1,5 +1,5 @@
 import { Home, FolderOpen, Brain, Newspaper, Search, Lightbulb, CreditCard } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -38,8 +38,8 @@ export function DashboardSidebar() {
                 return (
                   <SidebarMenuItem key={item.label}>
                     <SidebarMenuButton asChild>
-                      <a
-                        href={item.href}
+                      <Link
+                        to={item.href}
                         className={`flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white rounded-lg transition-colors ${
                           isActive 
                             ? isHome 
@@ -50,7 +50,7 @@ export function DashboardSidebar() {
                       >
                         <item.icon className="w-5 h-5" />
                         <span>{item.label}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

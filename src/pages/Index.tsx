@@ -7,7 +7,7 @@ import { WatchlistSection } from "@/components/WatchlistSection";
 import { RecommendedStock } from "@/components/RecommendedStock";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { PortfolioComposition } from "@/components/PortfolioComposition";
-import { getStockQuote } from "@/services/stockService";
+import { getStockQuoteFromPolygon } from "@/services/polygonService";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Sample portfolio data for demonstration
@@ -23,27 +23,15 @@ const portfolioData = [
 const Index = () => {
   const user = useUser();
 
-  // Fetch LLY stock data
+  // Fetch LLY stock data using Polygon API
   const { data: llyData, error: llyError } = useQuery({
     queryKey: ['stock', 'LLY'],
-    queryFn: () => getStockQuote('LLY'),
-    refetchInterval: 120000,
-    staleTime: 60000,
+    queryFn: () => getStockQuoteFromPolygon('LLY'),
+    refetchInterval: 60000,
+    staleTime: 30000,
     retry: 1,
     meta: {
       errorMessage: 'Failed to fetch LLY stock data'
-    }
-  });
-
-  // Fetch PLTR stock data
-  const { data: pltrData, error: pltrError } = useQuery({
-    queryKey: ['stock', 'PLTR'],
-    queryFn: () => getStockQuote('PLTR'),
-    refetchInterval: 120000,
-    staleTime: 60000,
-    retry: 1,
-    meta: {
-      errorMessage: 'Failed to fetch PLTR stock data'
     }
   });
 
@@ -52,8 +40,7 @@ const Index = () => {
     console.log('Index component rendered');
     console.log('User:', user);
     console.log('LLY Data:', llyData);
-    console.log('PLTR Data:', pltrData);
-  }, [user, llyData, pltrData]);
+  }, [user, llyData]);
 
   return (
     <SidebarProvider>
@@ -61,12 +48,18 @@ const Index = () => {
         <DashboardSidebar />
         <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-8">
-            <DashboardMetrics />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <DashboardMetrics />
+                <PerformanceChart />
+              </div>
+              <PortfolioComposition data={portfolioData} />
+            </div>
             
             {user && <WatchlistSection user={user} />}
 
-            <h2 className="text-xl font-semibold mt-8 mb-4 text-white">Recommended Stocks:</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <h2 className="text-xl font-semibold mt-8 mb-4 text-white">Recommended Stock:</h2>
+            <div className="grid grid-cols-1 gap-6">
               <RecommendedStock
                 name="Eli Lilly & Co"
                 symbol="LLY"
@@ -75,19 +68,6 @@ const Index = () => {
                 changePercent={llyData?.changePercent ? `${llyData.changePercent.toFixed(2)}%` : '0.00%'}
                 description="Eli Lilly has been a fantastic growth stock to own in recent years. Entering trading this week, its five-year returns have totaled more than 550%."
               />
-              <RecommendedStock
-                name="Palantir"
-                symbol="PLTR"
-                price={pltrData?.price ? `$${pltrData.price.toFixed(2)}` : '$0.00'}
-                change={pltrData?.change ? `${pltrData.change > 0 ? '+' : ''}${pltrData.change.toFixed(2)}` : '+0.00'}
-                changePercent={pltrData?.changePercent ? `${pltrData.changePercent.toFixed(2)}%` : '0.00%'}
-                description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million."
-              />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <PerformanceChart />
-              <PortfolioComposition data={portfolioData} />
             </div>
           </div>
         </main>

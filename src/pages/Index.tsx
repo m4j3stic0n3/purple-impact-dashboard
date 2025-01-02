@@ -12,10 +12,12 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 
 // Sample portfolio data for demonstration
 const portfolioData = [
-  { name: 'Stocks', value: 45 },
-  { name: 'Bonds', value: 25 },
-  { name: 'Cash', value: 15 },
-  { name: 'Other', value: 15 }
+  { name: 'Berkshire Hathaway B', value: 30 },
+  { name: 'Dupont', value: 20 },
+  { name: 'Morgan Stanley', value: 15 },
+  { name: 'Alphabet Inc.', value: 15 },
+  { name: 'Bank of America', value: 12 },
+  { name: 'Other', value: 8 }
 ];
 
 // Helper function to format price
@@ -86,10 +88,10 @@ const Index = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-dashboard-background">
+      <div className="flex min-h-screen bg-[#1A0B2E]">
         <DashboardSidebar />
         <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto space-y-6">
+          <div className="max-w-7xl mx-auto space-y-8">
             <DashboardMetrics />
             <WatchlistSection user={user} />
 
@@ -111,7 +113,7 @@ const Index = () => {
                 change={formatChange(getStockData('PLTR', pltrData, pltrError))}
                 changePercent={getStockData('PLTR', pltrData, pltrError)?.changePercent ? 
                   `${getStockData('PLTR', pltrData, pltrError).changePercent.toFixed(2)}%` : '0.00%'}
-                description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million and adjusted earnings of $0.10 per share."
+                description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million."
               />
             </div>
 

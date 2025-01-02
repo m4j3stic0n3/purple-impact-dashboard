@@ -32,7 +32,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#1A0B2E] text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }

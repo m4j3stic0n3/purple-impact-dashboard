@@ -20,32 +20,6 @@ const portfolioData = [
   { name: 'Other', value: 8 }
 ];
 
-// Helper function to format price
-const formatPrice = (data: any) => {
-  if (!data) return '$0.00';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(data.price);
-};
-
-// Helper function to format change
-const formatChange = (data: any) => {
-  if (!data) return '+$0.00';
-  const prefix = data.change >= 0 ? '+' : '';
-  return `${prefix}${data.change.toFixed(2)}`;
-};
-
-// Helper function to get stock data safely
-const getStockData = (symbol: string, data: any, error: any) => {
-  console.log(`Getting stock data for ${symbol}:`, { data, error });
-  if (error) {
-    console.error(`Error fetching ${symbol} data:`, error);
-    return null;
-  }
-  return data;
-};
-
 const Index = () => {
   const user = useUser();
 
@@ -81,38 +55,32 @@ const Index = () => {
     console.log('PLTR Data:', pltrData);
   }, [user, llyData, pltrData]);
 
-  if (!user) {
-    console.log('No user found, returning null');
-    return null;
-  }
-
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-[#1A0B2E]">
+      <div className="min-h-screen flex w-full bg-[#1A0B2E]">
         <DashboardSidebar />
         <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-8">
             <DashboardMetrics />
-            <WatchlistSection user={user} />
+            
+            {user && <WatchlistSection user={user} />}
 
             <h2 className="text-xl font-semibold mt-8 mb-4 text-white">Recommended Stocks:</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RecommendedStock
                 name="Eli Lilly & Co"
                 symbol="LLY"
-                price={formatPrice(getStockData('LLY', llyData, llyError))}
-                change={formatChange(getStockData('LLY', llyData, llyError))}
-                changePercent={getStockData('LLY', llyData, llyError)?.changePercent ? 
-                  `${getStockData('LLY', llyData, llyError).changePercent.toFixed(2)}%` : '0.00%'}
+                price={llyData?.price ? `$${llyData.price.toFixed(2)}` : '$0.00'}
+                change={llyData?.change ? `${llyData.change > 0 ? '+' : ''}${llyData.change.toFixed(2)}` : '+0.00'}
+                changePercent={llyData?.changePercent ? `${llyData.changePercent.toFixed(2)}%` : '0.00%'}
                 description="Eli Lilly has been a fantastic growth stock to own in recent years. Entering trading this week, its five-year returns have totaled more than 550%."
               />
               <RecommendedStock
                 name="Palantir"
                 symbol="PLTR"
-                price={formatPrice(getStockData('PLTR', pltrData, pltrError))}
-                change={formatChange(getStockData('PLTR', pltrData, pltrError))}
-                changePercent={getStockData('PLTR', pltrData, pltrError)?.changePercent ? 
-                  `${getStockData('PLTR', pltrData, pltrError).changePercent.toFixed(2)}%` : '0.00%'}
+                price={pltrData?.price ? `$${pltrData.price.toFixed(2)}` : '$0.00'}
+                change={pltrData?.change ? `${pltrData.change > 0 ? '+' : ''}${pltrData.change.toFixed(2)}` : '+0.00'}
+                changePercent={pltrData?.changePercent ? `${pltrData.changePercent.toFixed(2)}%` : '0.00%'}
                 description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million."
               />
             </div>

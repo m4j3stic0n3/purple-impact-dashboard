@@ -47,7 +47,6 @@ const Index = () => {
     }
   });
 
-  // Debug logs for component rendering and data
   useEffect(() => {
     console.log('Index component rendered');
     console.log('User:', user);
@@ -61,28 +60,30 @@ const Index = () => {
       <div className="min-h-screen flex w-full bg-[#1A0B2E]">
         <DashboardSidebar />
         <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* Top Section with Metrics and Chart */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-12 gap-6">
+              {/* Left Column: Metrics and Chart */}
+              <div className="col-span-12 lg:col-span-4 space-y-6">
                 <DashboardMetrics />
-                <div className="mt-6">
+                <div className="h-[200px]">
                   <PerformanceChart />
                 </div>
               </div>
-              <div className="lg:col-span-1">
+
+              {/* Center Column: Watchlist */}
+              <div className="col-span-12 lg:col-span-4">
+                {user && <WatchlistSection user={user} />}
+              </div>
+
+              {/* Right Column: Portfolio Composition */}
+              <div className="col-span-12 lg:col-span-4">
                 <PortfolioComposition data={portfolioData} />
               </div>
             </div>
 
-            {/* Watchlist Section */}
+            {/* Recommended Stocks Section */}
             <div className="mt-8">
-              {user && <WatchlistSection user={user} />}
-            </div>
-
-            {/* Recommended Stocks */}
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Recommended Stocks:</h2>
+              <h2 className="text-xl font-semibold mb-4 text-white">Recommended Stocks:</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <RecommendedStock
                   name="Eli Lilly & Co"

@@ -71,10 +71,11 @@ export const WatchlistSection = ({ user }) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold flex items-center gap-2">
-        Watchlist <span className="text-sm text-gray-400">({SAMPLE_WATCHLIST.length})</span>
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-white">Watchlist</h2>
+        <span className="text-sm text-gray-400">({SAMPLE_WATCHLIST.length})</span>
+      </div>
+      <div className="grid grid-cols-1 gap-3">
         {SAMPLE_WATCHLIST.map((stock) => (
           <Card 
             key={stock.symbol} 
@@ -83,11 +84,11 @@ export const WatchlistSection = ({ user }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/20 p-2 rounded-full">
-                  <Star className="w-4 h-4 text-primary" />
+                  <Star className="w-4 h-4 text-yellow-500" />
                 </div>
-                <div className="min-w-0">
-                  <h4 className="font-semibold text-white truncate">{stock.symbol}</h4>
-                  <p className="text-sm text-gray-400 truncate">{stock.name}</p>
+                <div>
+                  <h4 className="font-semibold text-white">{stock.symbol}</h4>
+                  <p className="text-sm text-gray-400">{stock.name}</p>
                 </div>
               </div>
               <div className="flex items-end flex-col gap-1">

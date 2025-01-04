@@ -5,10 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const SAMPLE_WATCHLIST = [
-  { symbol: 'MRNA', change: -3.15, changePercent: -4.02 },
-  { symbol: 'NKE', change: 3.42, changePercent: 0.91 },
-  { symbol: 'QQQ', change: 25.33, changePercent: 5.21 },
-  { symbol: 'AXP', change: 2.44, changePercent: 0.85 },
+  { symbol: 'MRNA', name: 'Moderna Inc', change: -3.15, changePercent: -4.02 },
+  { symbol: 'NKE', name: 'Nike Inc', change: 3.42, changePercent: 0.91 },
+  { symbol: 'QQQ', name: 'Invesco QQQ Trust', change: 25.33, changePercent: 5.21 },
+  { symbol: 'AXP', name: 'American Express', change: 2.44, changePercent: 0.85 },
 ];
 
 export const WatchlistSection = ({ user }) => {
@@ -70,25 +70,33 @@ export const WatchlistSection = ({ user }) => {
   if (!user) return null;
 
   return (
-    <>
-      <h2 className="text-xl font-semibold mt-8 mb-4 flex items-center gap-2">
-        Watchlist <span className="text-sm text-gray-400">+</span>
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold flex items-center gap-2">
+        Watchlist <span className="text-sm text-gray-400">({SAMPLE_WATCHLIST.length})</span>
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {SAMPLE_WATCHLIST.map((stock) => (
           <Card 
             key={stock.symbol} 
-            className="p-4 bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 group relative"
+            className="p-4 bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 group relative hover:bg-dashboard-card/60 transition-all duration-200"
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-400" />
-                <div>
-                  <h4 className="font-semibold text-white">{stock.symbol}</h4>
-                  <p className={`text-sm ${stock.change >= 0 ? 'text-success' : 'text-red-500'}`}>
-                    {stock.change >= 0 ? '+' : ''}{stock.change} ({stock.changePercent}%)
-                  </p>
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/20 p-2 rounded-full">
+                  <Star className="w-4 h-4 text-primary" />
                 </div>
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-white truncate">{stock.symbol}</h4>
+                  <p className="text-sm text-gray-400 truncate">{stock.name}</p>
+                </div>
+              </div>
+              <div className="flex items-end flex-col gap-1">
+                <p className={`text-sm font-medium ${stock.change >= 0 ? 'text-success' : 'text-red-500'}`}>
+                  ${Math.abs(stock.change).toFixed(2)}
+                </p>
+                <p className={`text-xs ${stock.change >= 0 ? 'text-success' : 'text-red-500'}`}>
+                  {stock.change >= 0 ? '+' : '-'}{Math.abs(stock.changePercent).toFixed(2)}%
+                </p>
               </div>
               <button
                 onClick={() => deleteWatchlistItem.mutate(stock.symbol)}
@@ -100,6 +108,6 @@ export const WatchlistSection = ({ user }) => {
           </Card>
         ))}
       </div>
-    </>
+    </div>
   );
 };

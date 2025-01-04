@@ -131,21 +131,21 @@ export function RecommendedStock({
     <Card className="p-6 bg-dashboard-card/60 backdrop-blur-lg border-gray-800">
       <div className="flex items-start gap-4">
         {logo && (
-          <div className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10">
+          <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full bg-white/10">
             <img src={logo} alt={name} className="w-8 h-8" />
           </div>
         )}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white">{name}</h3>
-            <div className="text-right">
+            <h3 className="text-lg font-semibold text-white truncate">{name}</h3>
+            <div className="text-right flex-shrink-0">
               <p className="text-lg font-semibold text-white">{price}</p>
               <p className={`text-sm ${isPositive ? "text-green-500" : "text-[#ea384c]"}`}>
                 {change} {changePercent}
               </p>
             </div>
           </div>
-          <p className="text-sm text-gray-400 mb-4">{description}</p>
+          <p className="text-sm text-gray-400 mb-4 line-clamp-2">{description}</p>
           <Button
             variant="outline"
             size="sm"

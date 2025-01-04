@@ -26,14 +26,13 @@ export const PerformanceChart = () => {
   const performanceData = generatePerformanceData();
 
   return (
-    <Card className="p-6 bg-dashboard-card/60 backdrop-blur-lg border-gray-800">
-      <h3 className="text-lg font-semibold mb-4">Performance</h3>
-      <div className="h-64">
+    <Card className="p-6 bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20">
+      <div className="h-32">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={performanceData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-            <XAxis dataKey="name" stroke="#666" />
-            <YAxis stroke="#666" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} />
+            <XAxis dataKey="name" stroke="#666" display="none" />
+            <YAxis stroke="#666" display="none" />
             <Tooltip 
               contentStyle={{ 
                 backgroundColor: '#1a1a1a', 
@@ -44,9 +43,9 @@ export const PerformanceChart = () => {
             <Line 
               type="monotone" 
               dataKey="value" 
-              stroke="#9b87f5" 
+              stroke="#4CAF50" 
               strokeWidth={2}
-              dot={{ fill: '#9b87f5' }}
+              dot={false}
             />
           </LineChart>
         </ResponsiveContainer>

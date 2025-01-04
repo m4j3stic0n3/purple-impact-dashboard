@@ -27,7 +27,7 @@ export const PerformanceChart = () => {
 
   return (
     <Card className="p-6 bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20">
-      <div className="h-32">
+      <div className="h-48">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={performanceData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} />
@@ -46,6 +46,7 @@ export const PerformanceChart = () => {
               stroke="#4CAF50" 
               strokeWidth={2}
               dot={false}
+              activeDot={{ r: 4, fill: "#4CAF50" }}
             />
           </LineChart>
         </ResponsiveContainer>

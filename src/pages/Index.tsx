@@ -23,7 +23,6 @@ const portfolioData = [
 const Index = () => {
   const user = useUser();
 
-  // Fetch LLY stock data using Polygon API
   const { data: llyData, error: llyError } = useQuery({
     queryKey: ['stock', 'LLY'],
     queryFn: () => getStockQuoteFromPolygon('LLY'),
@@ -62,12 +61,10 @@ const Index = () => {
         <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-12 gap-6">
-              {/* Left Column: Metrics and Chart */}
+              {/* Left Column: Metrics and Performance Chart */}
               <div className="col-span-12 lg:col-span-4 space-y-6">
                 <DashboardMetrics />
-                <div className="h-[200px]">
-                  <PerformanceChart />
-                </div>
+                <PerformanceChart />
               </div>
 
               {/* Center Column: Watchlist */}
@@ -83,7 +80,7 @@ const Index = () => {
 
             {/* Recommended Stocks Section */}
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4 text-white">Recommended Stocks:</h2>
+              <h2 className="text-xl font-semibold mb-4 text-white">Recommended Stocks</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <RecommendedStock
                   name="Eli Lilly & Co"

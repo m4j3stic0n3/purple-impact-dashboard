@@ -34,7 +34,6 @@ const Index = () => {
     }
   });
 
-  // Fetch PLTR stock data using Polygon API
   const { data: pltrData, error: pltrError } = useQuery({
     queryKey: ['stock', 'PLTR'],
     queryFn: () => getStockQuoteFromPolygon('PLTR'),
@@ -59,17 +58,29 @@ const Index = () => {
       <div className="min-h-screen flex w-full bg-[#1A0B2E]">
         <DashboardSidebar />
         <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-7xl mx-auto space-y-8">
+            {/* Portfolio Value and Performance Section */}
             <div className="grid grid-cols-12 gap-6">
-              {/* Left Column: Metrics and Performance Chart */}
-              <div className="col-span-12 lg:col-span-4 space-y-6">
-                <DashboardMetrics />
-                <PerformanceChart />
+              {/* Left Column: Portfolio Value and Performance Chart */}
+              <div className="col-span-12 lg:col-span-4">
+                <div className="space-y-6">
+                  <div className="bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 rounded-lg p-6">
+                    <h2 className="text-xl font-semibold text-white mb-4">Portfolio Value</h2>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-3xl font-bold text-white">$87,649.51</span>
+                        <span className="text-success text-sm">+0.12% (+$105.18)</span>
+                      </div>
+                      <PerformanceChart />
+                    </div>
+                  </div>
+                  <DashboardMetrics />
+                </div>
               </div>
 
               {/* Center Column: Watchlist */}
               <div className="col-span-12 lg:col-span-4">
-                {user && <WatchlistSection user={user} />}
+                <WatchlistSection user={user} />
               </div>
 
               {/* Right Column: Portfolio Composition */}
@@ -79,7 +90,7 @@ const Index = () => {
             </div>
 
             {/* Recommended Stocks Section */}
-            <div className="mt-8">
+            <div>
               <h2 className="text-xl font-semibold mb-4 text-white">Recommended Stocks</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <RecommendedStock

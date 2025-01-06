@@ -12,9 +12,9 @@ interface PortfolioCompositionProps {
 
 export const PortfolioComposition = ({ data }: PortfolioCompositionProps) => {
   return (
-    <Card className="p-6 bg-dashboard-card/60 backdrop-blur-lg border-gray-800 h-full">
+    <Card className="p-6 bg-dashboard-card/60 backdrop-blur-lg border-gray-800">
       <h3 className="text-lg font-semibold mb-4">Portfolio Composition</h3>
-      <div className="h-[calc(100%-2rem)]">
+      <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

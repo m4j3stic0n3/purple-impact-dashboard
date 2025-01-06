@@ -59,9 +59,8 @@ const Index = () => {
         <DashboardSidebar />
         <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-8">
-            {/* Main Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Left Column: Portfolio Value and Metrics */}
+              {/* Left Column */}
               <div className="lg:col-span-4 space-y-6">
                 {/* Portfolio Value Card */}
                 <div className="bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 rounded-lg p-6">
@@ -71,19 +70,20 @@ const Index = () => {
                       <span className="text-3xl font-bold text-white">$87,649.51</span>
                       <span className="text-success text-sm">+0.12% (+$105.18)</span>
                     </div>
-                    <PerformanceChart />
+                    <div className="h-48">
+                      <PerformanceChart />
+                    </div>
                   </div>
                 </div>
-                {/* Metrics Cards */}
                 <DashboardMetrics />
               </div>
 
-              {/* Center Column: Watchlist */}
+              {/* Center Column */}
               <div className="lg:col-span-4">
                 <WatchlistSection user={user} />
               </div>
 
-              {/* Right Column: Portfolio Composition */}
+              {/* Right Column */}
               <div className="lg:col-span-4">
                 <PortfolioComposition data={portfolioData} />
               </div>

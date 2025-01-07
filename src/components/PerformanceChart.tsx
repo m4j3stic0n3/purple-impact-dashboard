@@ -26,18 +26,30 @@ export const PerformanceChart = () => {
   const performanceData = generatePerformanceData();
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={performanceData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} />
-          <XAxis dataKey="name" stroke="#666" display="none" />
-          <YAxis stroke="#666" display="none" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} vertical={false} />
+          <XAxis 
+            dataKey="name" 
+            stroke="#666" 
+            axisLine={false}
+            tickLine={false}
+            display="none" 
+          />
+          <YAxis 
+            stroke="#666" 
+            axisLine={false}
+            tickLine={false}
+            display="none" 
+          />
           <Tooltip 
             contentStyle={{ 
               backgroundColor: '#1a1a1a', 
               border: '1px solid #333',
               borderRadius: '4px'
             }}
+            formatter={(value: number) => [`$${value.toLocaleString()}`, '']}
           />
           <Line 
             type="monotone" 

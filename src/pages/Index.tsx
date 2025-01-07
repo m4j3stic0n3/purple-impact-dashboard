@@ -9,6 +9,7 @@ import { PerformanceChart } from "@/components/PerformanceChart";
 import { PortfolioComposition } from "@/components/PortfolioComposition";
 import { getStockQuoteFromPolygon } from "@/services/polygonService";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Card } from "@/components/ui/card";
 
 // Sample portfolio data for demonstration
 const portfolioData = [
@@ -63,21 +64,19 @@ const Index = () => {
               {/* Left Column */}
               <div className="lg:col-span-4 space-y-6">
                 {/* Portfolio Value Card */}
-                <div className="w-full bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 rounded-lg p-6">
+                <Card className="w-full bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 rounded-lg p-6">
                   <h2 className="text-xl font-semibold text-white mb-4">Portfolio Value</h2>
                   <div className="space-y-4">
                     <div className="flex justify-between items-baseline">
-                      <span className="text-3xl font-bold text-white">$87,649.51</span>
+                      <span className="text-4xl font-bold text-white">$87,649.51</span>
                       <span className="text-success text-sm">+0.12% (+$105.18)</span>
                     </div>
-                    <div className="h-48 w-full">
+                    <div className="h-48">
                       <PerformanceChart />
                     </div>
                   </div>
-                </div>
-                <div className="w-full">
-                  <DashboardMetrics />
-                </div>
+                </Card>
+                <DashboardMetrics />
               </div>
 
               {/* Center Column */}

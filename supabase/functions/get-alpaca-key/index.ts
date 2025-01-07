@@ -12,6 +12,7 @@ serve(async (req) => {
 
   try {
     const apiKey = Deno.env.get('ALPACA_API_KEY')
+    console.log('Retrieved Alpaca API Key:', apiKey ? 'Key exists' : 'Key missing')
     
     if (!apiKey) {
       throw new Error('ALPACA_API_KEY not found in environment variables')
@@ -25,6 +26,7 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Error in get-alpaca-key:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

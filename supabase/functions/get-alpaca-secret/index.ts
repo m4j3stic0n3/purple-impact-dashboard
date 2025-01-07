@@ -12,6 +12,7 @@ serve(async (req) => {
 
   try {
     const secretKey = Deno.env.get('ALPACA_SECRET_KEY')
+    console.log('Retrieved Alpaca Secret Key:', secretKey ? 'Key exists' : 'Key missing')
     
     if (!secretKey) {
       throw new Error('ALPACA_SECRET_KEY not found in environment variables')
@@ -25,6 +26,7 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Error in get-alpaca-secret:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

@@ -1,5 +1,6 @@
-import { Star, Trash2 } from "lucide-react";
+import { Star, Trash2, Plus } from "lucide-react";
 import { Card } from "./ui/card";
+import { Button } from "./ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -73,7 +74,13 @@ export const WatchlistSection = ({ user }) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white">Watchlist</h2>
-        <span className="text-sm text-gray-400">({SAMPLE_WATCHLIST.length})</span>
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="hover:bg-purple-500/10"
+        >
+          <Plus className="h-5 w-5 text-purple-500" />
+        </Button>
       </div>
       <div className="grid grid-cols-1 gap-3">
         {SAMPLE_WATCHLIST.map((stock) => (
@@ -88,23 +95,19 @@ export const WatchlistSection = ({ user }) => {
                 </div>
                 <div>
                   <h4 className="font-semibold text-white">{stock.symbol}</h4>
-                  <p className="text-sm text-gray-400">{stock.name}</p>
                 </div>
               </div>
-              <div className="flex items-end flex-col gap-1">
-                <p className={`text-sm font-medium ${stock.change >= 0 ? 'text-success' : 'text-red-500'}`}>
-                  ${Math.abs(stock.change).toFixed(2)}
+              <div className="flex items-center gap-4">
+                <p className={`text-sm font-medium ${stock.changePercent >= 0 ? 'text-success' : 'text-red-500'}`}>
+                  {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}% ({stock.change >= 0 ? '+' : ''}${Math.abs(stock.change).toFixed(2)})
                 </p>
-                <p className={`text-xs ${stock.change >= 0 ? 'text-success' : 'text-red-500'}`}>
-                  {stock.change >= 0 ? '+' : '-'}{Math.abs(stock.changePercent).toFixed(2)}%
-                </p>
+                <button
+                  onClick={() => deleteWatchlistItem.mutate(stock.symbol)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-500/10 rounded-full"
+                >
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                </button>
               </div>
-              <button
-                onClick={() => deleteWatchlistItem.mutate(stock.symbol)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-red-500/10 rounded-full"
-              >
-                <Trash2 className="w-4 h-4 text-red-500" />
-              </button>
             </div>
           </Card>
         ))}

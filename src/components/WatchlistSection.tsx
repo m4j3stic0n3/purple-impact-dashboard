@@ -4,6 +4,8 @@ import { Button } from "./ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Input } from "./ui/input";
 
 const SAMPLE_WATCHLIST = [
   { symbol: 'MRNA', name: 'Moderna Inc', change: -3.15, changePercent: -4.02 },
@@ -13,6 +15,7 @@ const SAMPLE_WATCHLIST = [
 ];
 
 export const WatchlistSection = ({ user }) => {
+  const [newSymbol, setNewSymbol] = useState('');
   const queryClient = useQueryClient();
 
   const { data: watchlistData, isLoading: watchlistLoading } = useQuery({
@@ -37,6 +40,34 @@ export const WatchlistSection = ({ user }) => {
       return data || [];
     },
     enabled: !!user,
+  });
+
+  const addToWatchlist = useMutation({
+    mutationFn: async (symbol: string) => {
+      if (!user) throw new Error("User not authenticated");
+      
+      const { error } = await supabase
+        .from('watchlist')
+        .insert([{ user_id: user.id, symbol: symbol.toUpperCase() }]);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchlist', user?.id] });
+      setNewSymbol('');
+      toast({
+        title: "Success",
+        description: "Stock added to watchlist",
+      });
+    },
+    onError: (error) => {
+      console.error('Error adding to watchlist:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add stock to watchlist",
+        variant: "destructive",
+      });
+    },
   });
 
   const deleteWatchlistItem = useMutation({
@@ -68,19 +99,35 @@ export const WatchlistSection = ({ user }) => {
     },
   });
 
+  const handleAddStock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newSymbol.trim()) {
+      addToWatchlist.mutate(newSymbol.trim());
+    }
+  };
+
   if (!user) return null;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white">Watchlist</h2>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="hover:bg-purple-500/10"
-        >
-          <Plus className="h-5 w-5 text-purple-500" />
-        </Button>
+        <form onSubmit={handleAddStock} className="flex gap-2">
+          <Input
+            value={newSymbol}
+            onChange={(e) => setNewSymbol(e.target.value)}
+            placeholder="Enter stock symbol"
+            className="w-40 bg-dashboard-card/40"
+          />
+          <Button 
+            type="submit"
+            variant="ghost" 
+            size="icon"
+            className="hover:bg-purple-500/10"
+          >
+            <Plus className="h-5 w-5 text-purple-500" />
+          </Button>
+        </form>
       </div>
       <div className="grid grid-cols-1 gap-3">
         {SAMPLE_WATCHLIST.map((stock) => (
@@ -95,6 +142,7 @@ export const WatchlistSection = ({ user }) => {
                 </div>
                 <div>
                   <h4 className="font-semibold text-white">{stock.symbol}</h4>
+                  <p className="text-sm text-gray-400">{stock.name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">

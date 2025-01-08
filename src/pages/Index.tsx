@@ -64,13 +64,15 @@ const Index = () => {
         <DashboardSidebar />
         <main className="flex-1 p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto space-y-8">
+            {/* Top Row */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Left Column */}
-              <div className="lg:col-span-8 space-y-6">
-                {/* Metrics Row */}
+              {/* Left Side - Metrics */}
+              <div className="lg:col-span-8">
                 <DashboardMetrics />
-                
-                {/* Portfolio Value Card */}
+              </div>
+              
+              {/* Right Side - Portfolio Value */}
+              <div className="lg:col-span-4">
                 <Card className="w-full bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 rounded-lg p-6">
                   <div className="space-y-4">
                     <div className="flex flex-col">
@@ -86,39 +88,46 @@ const Index = () => {
                     </div>
                   </div>
                 </Card>
-
-                {/* Watchlist Section */}
-                <WatchlistSection user={user} />
-              </div>
-
-              {/* Right Column */}
-              <div className="lg:col-span-4">
-                <PortfolioComposition data={portfolioData} />
               </div>
             </div>
 
-            {/* Recommended Stocks Section */}
-            <div className="mt-12">
-              <h2 className="text-xl font-semibold mb-6 text-white">Recommended Stocks</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <RecommendedStock
-                  name="Eli Lilly & Co"
-                  symbol="LLY"
-                  price={`$795.35`}
-                  change={`+7.16`}
-                  changePercent={`0.91%`}
-                  description="Eli Lilly has been a fantastic growth stock to own in recent years. Entering trading this week, its five-year returns have totaled more than 550%."
-                  logo="https://companieslogo.com/img/orig/LLY-0d650b8a.png?t=1633508957"
-                />
-                <RecommendedStock
-                  name="Palantir"
-                  symbol="PLTR"
-                  price={`$67.08`}
-                  change={`+1.03`}
-                  changePercent={`1.56%`}
-                  description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million."
-                  logo="https://companieslogo.com/img/orig/PLTR-c1b7c9e2.png?t=1677157547"
-                />
+            {/* Middle Row - Watchlist */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-8">
+                <WatchlistSection user={user} />
+              </div>
+            </div>
+
+            {/* Bottom Row - Portfolio Composition and Recommended Stocks */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Right Side - Portfolio Composition */}
+              <div className="lg:col-span-4">
+                <PortfolioComposition data={portfolioData} />
+              </div>
+              
+              {/* Left Side - Recommended Stocks */}
+              <div className="lg:col-span-8">
+                <h2 className="text-xl font-semibold mb-6 text-white">Recommended Stocks</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <RecommendedStock
+                    name="Eli Lilly & Co"
+                    symbol="LLY"
+                    price={`$795.35`}
+                    change={`+7.16`}
+                    changePercent={`0.91%`}
+                    description="Eli Lilly has been a fantastic growth stock to own in recent years. Entering trading this week, its five-year returns have totaled more than 550%."
+                    logo="https://companieslogo.com/img/orig/LLY-0d650b8a.png?t=1633508957"
+                  />
+                  <RecommendedStock
+                    name="Palantir"
+                    symbol="PLTR"
+                    price={`$67.08`}
+                    change={`+1.03`}
+                    changePercent={`1.56%`}
+                    description="Palantir shares jumped 20% following its solid Q3 earnings results, in which it reported revenue of $726 million."
+                    logo="https://companieslogo.com/img/orig/PLTR-c1b7c9e2.png?t=1677157547"
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
-# Welcome To A Purple Impact Dashboard
+# PEAK Financial Dashboard
 
 ## Project Info
 
-So this is just a basic Fintech Dashboard. The backend is still in development. Yes, I use a bot for development. No, I have zero idea on what I am doing. Enjoy!
+A modern fintech dashboard that helps users manage their investments and track market movements. Built with React and Supabase.

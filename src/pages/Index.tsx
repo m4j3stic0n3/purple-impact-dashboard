@@ -21,6 +21,10 @@ const portfolioData = [
   { name: 'Other', value: 8 }
 ];
 
+const PORTFOLIO_VALUE = 87649.51;
+const PORTFOLIO_CHANGE = 105.18;
+const PORTFOLIO_CHANGE_PERCENT = 0.12;
+
 const Index = () => {
   const user = useUser();
 
@@ -62,25 +66,28 @@ const Index = () => {
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Column */}
-              <div className="lg:col-span-4 space-y-6">
+              <div className="lg:col-span-8 space-y-6">
+                {/* Metrics Row */}
+                <DashboardMetrics />
+                
                 {/* Portfolio Value Card */}
                 <Card className="w-full bg-dashboard-card/40 backdrop-blur-lg border-purple-800/20 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold text-white mb-4">Portfolio Value</h2>
                   <div className="space-y-4">
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-4xl font-bold text-white">$87,649.51</span>
-                      <span className="text-success text-sm">+0.12% (+$105.18)</span>
+                    <div className="flex flex-col">
+                      <span className="text-4xl font-bold text-white">
+                        ${PORTFOLIO_VALUE.toLocaleString()}
+                      </span>
+                      <span className="text-success text-sm mt-2">
+                        +{PORTFOLIO_CHANGE_PERCENT}% (+${PORTFOLIO_CHANGE})
+                      </span>
                     </div>
                     <div className="h-48">
                       <PerformanceChart />
                     </div>
                   </div>
                 </Card>
-                <DashboardMetrics />
-              </div>
 
-              {/* Center Column */}
-              <div className="lg:col-span-4 space-y-6">
+                {/* Watchlist Section */}
                 <WatchlistSection user={user} />
               </div>
 

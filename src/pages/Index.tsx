@@ -91,9 +91,9 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Middle Row - Watchlist */}
+            {/* Middle Row - Centered Watchlist */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-8">
+              <div className="lg:col-span-8 lg:col-start-3">
                 <WatchlistSection user={user} />
               </div>
             </div>
@@ -101,12 +101,12 @@ const Index = () => {
             {/* Bottom Row - Portfolio Composition and Recommended Stocks */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Right Side - Portfolio Composition */}
-              <div className="lg:col-span-4">
+              <div className="lg:col-span-4 lg:col-start-9">
                 <PortfolioComposition data={portfolioData} />
               </div>
               
               {/* Left Side - Recommended Stocks */}
-              <div className="lg:col-span-8">
+              <div className="lg:col-span-8 lg:row-start-3">
                 <h2 className="text-xl font-semibold mb-6 text-white">Recommended Stocks</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <RecommendedStock

@@ -19,9 +19,9 @@ const Login = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-[#1a237e] to-[#311b92] p-4">
+    <div className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1a237e] to-[#311b92]">
       {/* Logo Section */}
-      <div className="mt-8 mb-12">
+      <div className="mb-12">
         <div className="flex items-center gap-2">
           <img 
             src="/lovable-uploads/57a38a35-6ea4-42c7-bd1a-54fef1960bd0.png" 
@@ -33,7 +33,7 @@ const Login = () => {
       </div>
 
       {/* Login Card */}
-      <Card className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl">
+      <Card className="w-full max-w-md p-8 bg-white shadow-xl rounded-2xl mx-4">
         <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">Welcome Back!</h1>
         <Auth
           supabaseClient={supabase}
@@ -47,9 +47,10 @@ const Login = () => {
                   defaultButtonBackground: '#1a237e',
                   defaultButtonBackgroundHover: '#311b92',
                 },
-                borderRadii: {
-                  button: '8px',
-                  input: '8px',
+                radii: {
+                  borderRadiusButton: '8px',
+                  buttonBorderRadius: '8px',
+                  inputBorderRadius: '8px',
                 },
               }
             },

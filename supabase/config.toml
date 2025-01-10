@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.get-alpaca-secret]
 verify_jwt = false
+
+[functions.send-mailgun-email]
+verify_jwt = true

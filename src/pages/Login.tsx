@@ -1,22 +1,43 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN') {
         navigate("/");
+      } else if (event === 'USER_UPDATED') {
+        if (session?.user.email_confirmed_at) {
+          toast({
+            title: "Email confirmed!",
+            description: "Your email has been successfully verified.",
+          });
+          navigate("/");
+        }
       }
     });
 
+    // Check for email confirmation success
+    const confirmationError = searchParams.get('error_description');
+    if (confirmationError) {
+      toast({
+        title: "Error",
+        description: confirmationError,
+        variant: "destructive",
+      });
+    }
+
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, searchParams, toast]);
 
   return (
     <div className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1a237e] to-[#311b92]">

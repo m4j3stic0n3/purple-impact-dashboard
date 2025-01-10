@@ -13,7 +13,7 @@ const Login = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN') {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_UP') {
         navigate("/");
       } else if (event === 'USER_UPDATED') {
         if (session?.user.email_confirmed_at) {

@@ -4,7 +4,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,19 +12,27 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN') {
-        navigate("/");
-      } else if (event === 'USER_UPDATED') {
-        if (session?.user.email_confirmed_at) {
-          toast({
-            title: "Email confirmed!",
-            description: "Your email has been successfully verified.",
-          });
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    const setupAuthListener = async () => {
+      const { data } = await supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN') {
           navigate("/");
+        } else if (event === 'USER_UPDATED') {
+          if (session?.user.email_confirmed_at) {
+            toast({
+              title: "Email confirmed!",
+              description: "Your email has been successfully verified.",
+            });
+            navigate("/");
+          }
         }
-      }
-    });
+      });
+      
+      subscription = data.subscription;
+    };
+
+    setupAuthListener();
 
     // Check for email confirmation success
     const confirmationError = searchParams.get('error_description');
@@ -36,7 +44,11 @@ const Login = () => {
       });
     }
 
-    return () => subscription.unsubscribe();
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, [navigate, searchParams, toast]);
 
   return (

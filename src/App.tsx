@@ -22,12 +22,14 @@ const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Check for existing session on component mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Set up real-time subscription to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -36,7 +38,11 @@ const ProtectedRoute = ({ children }) => {
   }, []);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-[#1A0B2E]">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#1A0B2E]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
   }
 
   if (!user) {

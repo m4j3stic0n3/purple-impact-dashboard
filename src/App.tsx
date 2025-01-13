@@ -14,6 +14,7 @@ import Learn from "./pages/Learn";
 import PeakAI from "./pages/PeakAI";
 import Billing from "./pages/Billing";
 import Login from "./pages/Login";
+import { DashboardSidebar } from "./components/DashboardSidebar";
 
 const queryClient = new QueryClient();
 
@@ -49,7 +50,14 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return (
+    <div className="flex">
+      <DashboardSidebar />
+      <div className="flex-1">
+        {children}
+      </div>
+    </div>
+  );
 };
 
 const App = () => (
